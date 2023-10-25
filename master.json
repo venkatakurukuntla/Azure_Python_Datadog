@@ -1,0 +1,38 @@
+[
+    {
+        "ddsource": "workday_integration_events1",
+        "hostname": "",
+        "service": "workday_integration_events1",
+        "workday": {
+            "custom": {
+                "integration_event": {
+                    "header": {
+                        "env": "DEV",
+                        "batch_id": 20231004011312,
+                        "timestamp": "2023-10-04 01:13:12.316"
+                    },
+                    "created_from_trigger": "Integration: INT126_WDINT_STU_ServiceNow_WD Integrations failures Outbound - 10/03/2023, 10:00:16.907 PM; Scheduled / INT126_WDINT_STU_ServiceNow_WD Integrations failures Outbound / ISU_INT126_ServiceNow_Incident / Next Fire Time: 10/04/2023, 1:15:00.000 AM EDT",
+                    "type": "Integration Event",
+                    "name": "INT126_WDINT_STU_ServiceNow_WD Integrations failures Outbound - 10/03/2023, 10:00:16.907 PM (Completed)",
+                    "response_message": "Integration Completed.",
+                    "by_person": "ISU_INT126_ServiceNow_Incident",
+                    "sent_on": "2023-10-04 01:00:16.907",
+                    "processing_time": 34,
+                    "status": "Completed",
+                    "cloud_id": "845d3765f5d7100141e00576a4040000",
+                    "system_name": "INT126_WDINT_STU_ServiceNow_WD Integrations failures Outbound",
+                    "processing_time_90p": 38.0,
+                    "overshot_by": -4.0,
+                    "error": {
+                        "count": "0",
+                        "message": ""
+                    },
+                    "warning": {
+                        "count": "0",
+                        "message": ""
+                    }
+                }
+            }
+        }
+    }
+]
