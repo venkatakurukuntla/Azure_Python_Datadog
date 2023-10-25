@@ -1,0 +1,7 @@
+{
+  "dependencies": {
+    "azure": "^2.3.1-preview",
+    "azure-storage": "^2.10.7",
+    "functions": "^1.0.9"
+  }
+}

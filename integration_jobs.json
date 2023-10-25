@@ -1,0 +1,488 @@
+[
+    {
+        "ddsource": "talend_integration_job1",
+        "hostname": "",
+        "service": "talend_integration_job1",
+        "talend": {
+            "custom": {
+                "integration_job": {
+                    "header": {
+                        "env": "DEV",
+                        "batch_id": 20231006071456,
+                        "timestamp": "2023-10-06 07:14:56.875"
+                    },
+                    "execution_type": "PLAN",
+                    "start_time": "2023-10-06 07:12:17.744",
+                    "status": "execution_successful",
+                    "end_time": "2023-10-06 07:13:11.261",
+                    "error_message": "",
+                    "execution_id": "b5a9d464-6002-48ff-903d-e04ba6cce92b",
+                    "duration": 53.517,
+                    "duration_threshold": 59.871,
+                    "overshot_by": -6.353,
+                    "name": "INT_SFDCToWD_ContractService_HoldStatus",
+                    "project": "ERP_Modernization"
+                }
+            }
+        }
+    },
+    {
+        "ddsource": "talend_integration_job1",
+        "hostname": "",
+        "service": "talend_integration_job1",
+        "talend": {
+            "custom": {
+                "integration_job": {
+                    "header": {
+                        "env": "DEV",
+                        "batch_id": 20231006071456,
+                        "timestamp": "2023-10-06 07:14:56.875"
+                    },
+                    "execution_type": "PLAN",
+                    "start_time": "2023-10-06 07:11:48.983",
+                    "status": "execution_successful",
+                    "end_time": "2023-10-06 07:12:16.676",
+                    "error_message": "",
+                    "execution_id": "560634fd-4263-4c05-81e0-a13d02228540",
+                    "duration": 27.693,
+                    "duration_threshold": 29.202,
+                    "overshot_by": -1.509,
+                    "name": "INT_SFDCToWD_Customer_Contract_Amendment",
+                    "project": "ERP_Modernization"
+                }
+            }
+        }
+    },
+    {
+        "ddsource": "talend_integration_job1",
+        "hostname": "",
+        "service": "talend_integration_job1",
+        "talend": {
+            "custom": {
+                "integration_job": {
+                    "header": {
+                        "env": "DEV",
+                        "batch_id": 20231006071456,
+                        "timestamp": "2023-10-06 07:14:56.875"
+                    },
+                    "execution_type": "PLAN",
+                    "start_time": "2023-10-06 07:11:06.986",
+                    "status": "execution_successful",
+                    "end_time": "2023-10-06 07:11:47.834",
+                    "error_message": "",
+                    "execution_id": "f641a260-2ce6-44b4-a0fe-3e0b2f424b30",
+                    "duration": 40.848,
+                    "duration_threshold": 45.068,
+                    "overshot_by": -4.219,
+                    "name": "INT_SFDCToWD_Customer_Contract",
+                    "project": "ERP_Modernization"
+                }
+            }
+        }
+    },
+    {
+        "ddsource": "talend_integration_job1",
+        "hostname": "",
+        "service": "talend_integration_job1",
+        "talend": {
+            "custom": {
+                "integration_job": {
+                    "header": {
+                        "env": "DEV",
+                        "batch_id": 20231006071456,
+                        "timestamp": "2023-10-06 07:14:56.875"
+                    },
+                    "execution_type": "PLAN",
+                    "start_time": "2023-10-06 07:11:02.221",
+                    "status": "execution_successful",
+                    "end_time": "2023-10-06 07:11:05.785",
+                    "error_message": "",
+                    "execution_id": "a2bb71ee-a64d-4471-9cbd-dcccc78f6a5d",
+                    "duration": 3.564,
+                    "duration_threshold": 3.899,
+                    "overshot_by": -0.334,
+                    "name": "INT_SFDCToWD_Customer_Contract_Usage",
+                    "project": "ERP_Modernization"
+                }
+            }
+        }
+    },
+    {
+        "ddsource": "talend_integration_job1",
+        "hostname": "",
+        "service": "talend_integration_job1",
+        "talend": {
+            "custom": {
+                "integration_job": {
+                    "header": {
+                        "env": "DEV",
+                        "batch_id": 20231006071456,
+                        "timestamp": "2023-10-06 07:14:56.875"
+                    },
+                    "execution_type": "PLAN",
+                    "start_time": "2023-10-06 07:10:26.272",
+                    "status": "execution_successful",
+                    "end_time": "2023-10-06 07:10:33.183",
+                    "error_message": "",
+                    "execution_id": "295b3b61-967e-43e6-ae39-a3310c8cc215",
+                    "duration": 6.911,
+                    "duration_threshold": 7.586,
+                    "overshot_by": -0.675,
+                    "name": "INT15A_WorkdayCustomerMasterInbound_Upd",
+                    "project": "ERP_Modernization"
+                }
+            }
+        }
+    },
+    {
+        "ddsource": "talend_integration_job1",
+        "hostname": "",
+        "service": "talend_integration_job1",
+        "talend": {
+            "custom": {
+                "integration_job": {
+                    "header": {
+                        "env": "DEV",
+                        "batch_id": 20231006071456,
+                        "timestamp": "2023-10-06 07:14:56.875"
+                    },
+                    "execution_type": "PLAN",
+                    "start_time": "2023-10-06 07:10:26.157",
+                    "status": "execution_successful",
+                    "end_time": "2023-10-06 07:10:46.395",
+                    "error_message": "",
+                    "execution_id": "c2c022b5-8596-4772-b650-7905bd64fe2d",
+                    "duration": 20.238,
+                    "duration_threshold": 18.278,
+                    "overshot_by": 1.96,
+                    "name": "INT15B_WorkdayCustomerMasterInbound_Upd",
+                    "project": "ERP_Modernization"
+                }
+            }
+        }
+    },
+    {
+        "ddsource": "talend_integration_job1",
+        "hostname": "",
+        "service": "talend_integration_job1",
+        "talend": {
+            "custom": {
+                "integration_job": {
+                    "header": {
+                        "env": "DEV",
+                        "batch_id": 20231006071456,
+                        "timestamp": "2023-10-06 07:14:56.875"
+                    },
+                    "execution_type": "PLAN",
+                    "start_time": "2023-10-06 07:10:26.157",
+                    "status": "execution_successful",
+                    "end_time": "2023-10-06 07:10:33.110",
+                    "error_message": "",
+                    "execution_id": "fdbebc1f-36b7-4432-9756-35b231feb041",
+                    "duration": 6.953,
+                    "duration_threshold": 7.451,
+                    "overshot_by": -0.497,
+                    "name": "INT15C_WorkdayCustomerMasterInbound_Upd",
+                    "project": "ERP_Modernization"
+                }
+            }
+        }
+    },
+    {
+        "ddsource": "talend_integration_job1",
+        "hostname": "",
+        "service": "talend_integration_job1",
+        "talend": {
+            "custom": {
+                "integration_job": {
+                    "header": {
+                        "env": "DEV",
+                        "batch_id": 20231006071456,
+                        "timestamp": "2023-10-06 07:14:56.875"
+                    },
+                    "execution_type": "PLAN",
+                    "start_time": "2023-10-06 07:01:30.370",
+                    "status": "execution_failed",
+                    "end_time": "2023-10-06 07:01:52.730",
+                    "error_message": "Execution 2dd09afc-9957-4223-a548-79f51d40ffb1 failed with code 1 and error Job stopped with errors or unable to run. Exception in component tJavaFlex_12 (INT_SFDCToOSVC_Entitlements) java.lang.NullPointerException",
+                    "execution_id": "2dd09afc-9957-4223-a548-79f51d40ffb1",
+                    "duration": 22.36,
+                    "duration_threshold": 22.77,
+                    "overshot_by": -0.41,
+                    "name": "INT_SFDCToOSVC_Entitlements",
+                    "project": "ERP_Modernization"
+                }
+            }
+        }
+    },
+    {
+        "ddsource": "talend_integration_job1",
+        "hostname": "",
+        "service": "talend_integration_job1",
+        "talend": {
+            "custom": {
+                "integration_job": {
+                    "header": {
+                        "env": "DEV",
+                        "batch_id": 20231006071456,
+                        "timestamp": "2023-10-06 07:14:56.875"
+                    },
+                    "execution_type": "PLAN",
+                    "start_time": "2023-10-06 07:01:26.096",
+                    "status": "execution_successful",
+                    "end_time": "2023-10-06 07:01:29.198",
+                    "error_message": "",
+                    "execution_id": "97f3e230-f501-4b9a-9676-1b46c59a4a0b",
+                    "duration": 3.102,
+                    "duration_threshold": 3.908,
+                    "overshot_by": -0.806,
+                    "name": "INT_ProfiseeToOSVC_Accounts",
+                    "project": "ERP_Modernization"
+                }
+            }
+        }
+    },
+    {
+        "ddsource": "talend_integration_job1",
+        "hostname": "",
+        "service": "talend_integration_job1",
+        "talend": {
+            "custom": {
+                "integration_job": {
+                    "header": {
+                        "env": "DEV",
+                        "batch_id": 20231006071456,
+                        "timestamp": "2023-10-06 07:14:56.875"
+                    },
+                    "execution_type": "PLAN",
+                    "start_time": "2023-10-06 07:01:21.422",
+                    "status": "execution_successful",
+                    "end_time": "2023-10-06 07:11:00.811",
+                    "error_message": "",
+                    "execution_id": "fe3f66c9-25c4-4461-b6b9-a1357abca820",
+                    "duration": 579.389,
+                    "duration_threshold": 609.973,
+                    "overshot_by": -30.583,
+                    "name": "INT15ABC_WorkdayCustomerMasterInbound_Delta",
+                    "project": "ERP_Modernization"
+                }
+            }
+        }
+    },
+    {
+        "ddsource": "talend_integration_job1",
+        "hostname": "",
+        "service": "talend_integration_job1",
+        "talend": {
+            "custom": {
+                "integration_job": {
+                    "header": {
+                        "env": "DEV",
+                        "batch_id": 20231006071456,
+                        "timestamp": "2023-10-06 07:14:56.875"
+                    },
+                    "execution_type": "PLAN",
+                    "start_time": "2023-10-06 07:01:17.751",
+                    "status": "execution_successful",
+                    "end_time": "2023-10-06 07:01:21.759",
+                    "error_message": "",
+                    "execution_id": "dd6051df-72bf-4eed-9cf7-3842c4b37a08",
+                    "duration": 4.008,
+                    "duration_threshold": 4.652,
+                    "overshot_by": -0.644,
+                    "name": "INT_MSOToOSVC_Entity",
+                    "project": "ERP_Modernization"
+                }
+            }
+        }
+    },
+    {
+        "ddsource": "talend_integration_job1",
+        "hostname": "",
+        "service": "talend_integration_job1",
+        "talend": {
+            "custom": {
+                "integration_job": {
+                    "header": {
+                        "env": "DEV",
+                        "batch_id": 20231006071456,
+                        "timestamp": "2023-10-06 07:14:56.875"
+                    },
+                    "execution_type": "PLAN",
+                    "start_time": "2023-10-06 07:00:42.787",
+                    "status": "execution_successful",
+                    "end_time": "2023-10-06 07:00:46.182",
+                    "error_message": "",
+                    "execution_id": "afa3ce78-c08d-4692-bb3b-8a1bed68489b",
+                    "duration": 3.395,
+                    "duration_threshold": 5.752,
+                    "overshot_by": -2.356,
+                    "name": "INT_MSOToOSVC_Accounts",
+                    "project": "ERP_Modernization"
+                }
+            }
+        }
+    },
+    {
+        "ddsource": "talend_integration_job1",
+        "hostname": "",
+        "service": "talend_integration_job1",
+        "talend": {
+            "custom": {
+                "integration_job": {
+                    "header": {
+                        "env": "DEV",
+                        "batch_id": 20231006071456,
+                        "timestamp": "2023-10-06 07:14:56.875"
+                    },
+                    "execution_type": "PLAN",
+                    "start_time": "2023-10-06 07:00:29.826",
+                    "status": "execution_successful",
+                    "end_time": "2023-10-06 07:00:50.634",
+                    "error_message": "",
+                    "execution_id": "f6950e44-f34c-4a80-9fe6-e4414414e8c2",
+                    "duration": 20.808,
+                    "duration_threshold": 20.458,
+                    "overshot_by": 0.35,
+                    "name": "Int_SalesforceToFlexeraEntitlements",
+                    "project": "ERP_Modernization"
+                }
+            }
+        }
+    },
+    {
+        "ddsource": "talend_integration_job1",
+        "hostname": "",
+        "service": "talend_integration_job1",
+        "talend": {
+            "custom": {
+                "integration_job": {
+                    "header": {
+                        "env": "DEV",
+                        "batch_id": 20231006071456,
+                        "timestamp": "2023-10-06 07:14:56.875"
+                    },
+                    "execution_type": "PLAN",
+                    "start_time": "2023-10-06 07:00:29.752",
+                    "status": "execution_successful",
+                    "end_time": "2023-10-06 07:00:37.624",
+                    "error_message": "",
+                    "execution_id": "9a324b1f-3ea0-406c-9855-83fa28a4321c",
+                    "duration": 7.872,
+                    "duration_threshold": 7.586,
+                    "overshot_by": 0.285,
+                    "name": "INT15A_WorkdayCustomerMasterInbound_Upd",
+                    "project": "ERP_Modernization"
+                }
+            }
+        }
+    },
+    {
+        "ddsource": "talend_integration_job1",
+        "hostname": "",
+        "service": "talend_integration_job1",
+        "talend": {
+            "custom": {
+                "integration_job": {
+                    "header": {
+                        "env": "DEV",
+                        "batch_id": 20231006071456,
+                        "timestamp": "2023-10-06 07:14:56.875"
+                    },
+                    "execution_type": "PLAN",
+                    "start_time": "2023-10-06 07:00:28.399",
+                    "status": "execution_successful",
+                    "end_time": "2023-10-06 07:00:46.739",
+                    "error_message": "",
+                    "execution_id": "b6f317a5-79c9-4136-b9d9-3ab9ef95dcea",
+                    "duration": 18.34,
+                    "duration_threshold": 18.278,
+                    "overshot_by": 0.062,
+                    "name": "INT15B_WorkdayCustomerMasterInbound_Upd",
+                    "project": "ERP_Modernization"
+                }
+            }
+        }
+    },
+    {
+        "ddsource": "talend_integration_job1",
+        "hostname": "",
+        "service": "talend_integration_job1",
+        "talend": {
+            "custom": {
+                "integration_job": {
+                    "header": {
+                        "env": "DEV",
+                        "batch_id": 20231006071456,
+                        "timestamp": "2023-10-06 07:14:56.875"
+                    },
+                    "execution_type": "PLAN",
+                    "start_time": "2023-10-06 07:00:27.969",
+                    "status": "execution_successful",
+                    "end_time": "2023-10-06 07:00:33.156",
+                    "error_message": "",
+                    "execution_id": "087e1dd3-6b7c-49e0-a9e1-675471858444",
+                    "duration": 5.187,
+                    "duration_threshold": 7.451,
+                    "overshot_by": -2.263,
+                    "name": "INT15C_WorkdayCustomerMasterInbound_Upd",
+                    "project": "ERP_Modernization"
+                }
+            }
+        }
+    },
+    {
+        "ddsource": "talend_integration_job1",
+        "hostname": "",
+        "service": "talend_integration_job1",
+        "talend": {
+            "custom": {
+                "integration_job": {
+                    "header": {
+                        "env": "DEV",
+                        "batch_id": 20231006071456,
+                        "timestamp": "2023-10-06 07:14:56.875"
+                    },
+                    "execution_type": "PLAN",
+                    "start_time": "2023-10-06 07:00:15.297",
+                    "status": "execution_successful",
+                    "end_time": "2023-10-06 07:00:20.175",
+                    "error_message": "",
+                    "execution_id": "7b686868-effc-4b49-8c45-2d21fceb25c0",
+                    "duration": 4.878,
+                    "duration_threshold": 5.807,
+                    "overshot_by": -0.929,
+                    "name": "INT_ProfiseeToMSO_CoreCustomer",
+                    "project": "ERP_Modernization"
+                }
+            }
+        }
+    },
+    {
+        "ddsource": "talend_integration_job1",
+        "hostname": "",
+        "service": "talend_integration_job1",
+        "talend": {
+            "custom": {
+                "integration_job": {
+                    "header": {
+                        "env": "DEV",
+                        "batch_id": 20231006071456,
+                        "timestamp": "2023-10-06 07:14:56.875"
+                    },
+                    "execution_type": "PLAN",
+                    "start_time": "2023-10-06 07:00:12.143",
+                    "status": "execution_successful",
+                    "end_time": "2023-10-06 07:00:14.860",
+                    "error_message": "",
+                    "execution_id": "e063217e-3f72-4892-b0cf-fc45a6ac7360",
+                    "duration": 2.717,
+                    "duration_threshold": 4.695,
+                    "overshot_by": -1.978,
+                    "name": "Int_ProfiseeToFlexeraEntitlements",
+                    "project": "ERP_Modernization"
+                }
+            }
+        }
+    }
+]
