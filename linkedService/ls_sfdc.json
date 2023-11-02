@@ -1,0 +1,37 @@
+{
+	"name": "ls_sfdc",
+	"type": "Microsoft.DataFactory/factories/linkedservices",
+	"properties": {
+		"parameters": {
+			"v_ls_base_url": {
+				"type": "string"
+			},
+			"v_ls_user_name": {
+				"type": "string"
+			}
+		},
+		"annotations": [],
+		"type": "Salesforce",
+		"typeProperties": {
+			"environmentUrl": "@{linkedService().v_ls_base_url}",
+			"username": "@{linkedService().v_ls_user_name}",
+			"password": {
+				"type": "AzureKeyVaultSecret",
+				"store": {
+					"referenceName": "ls_azure_key_vault",
+					"type": "LinkedServiceReference"
+				},
+				"secretName": "SalesforcePassword"
+			},
+			"securityToken": {
+				"type": "AzureKeyVaultSecret",
+				"store": {
+					"referenceName": "ls_azure_key_vault",
+					"type": "LinkedServiceReference"
+				},
+				"secretName": "SalesforceSecurityToken"
+			},
+			"apiVersion": "54.0"
+		}
+	}
+}

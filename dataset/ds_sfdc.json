@@ -1,0 +1,34 @@
+{
+	"name": "ds_sfdc",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "ls_sfdc",
+			"type": "LinkedServiceReference",
+			"parameters": {
+				"v_ls_base_url": {
+					"value": "@dataset().p_ds_base_url",
+					"type": "Expression"
+				},
+				"v_ls_user_name": {
+					"value": "@dataset().p_ds_user_name",
+					"type": "Expression"
+				}
+			}
+		},
+		"parameters": {
+			"p_ds_base_url": {
+				"type": "String"
+			},
+			"p_ds_user_name": {
+				"type": "String"
+			}
+		},
+		"folder": {
+			"name": "App_Salesforce"
+		},
+		"annotations": [],
+		"type": "SalesforceObject",
+		"schema": []
+	},
+	"type": "Microsoft.DataFactory/factories/datasets"
+}

@@ -1,0 +1,306 @@
+{
+	"name": "pl_extract_talend_integration_jobs_data_test",
+	"properties": {
+		"activities": [
+			{
+				"name": "Lookup tasks",
+				"type": "Lookup",
+				"dependsOn": [
+					{
+						"activity": "Set variable v_task_count_array",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					},
+					{
+						"activity": "Copy data tasks",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "JsonSource",
+						"storeSettings": {
+							"type": "AzureBlobFSReadSettings",
+							"recursive": true,
+							"enablePartitionDiscovery": false
+						},
+						"formatSettings": {
+							"type": "JsonReadSettings"
+						}
+					},
+					"dataset": {
+						"referenceName": "ds_adls_json_talend",
+						"type": "DatasetReference",
+						"parameters": {
+							"p_ds_direcotry": "data",
+							"p_ds_file_name": "tasks.json"
+						}
+					},
+					"firstRowOnly": true
+				}
+			},
+			{
+				"name": "Set variable v_base_url",
+				"type": "SetVariable",
+				"dependsOn": [
+					{
+						"activity": "ForEach1",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"variableName": "v_base_url",
+					"value": {
+						"value": "@concat('https://api.us.cloud.talend.com/processing/executables/tasks/',activity('Lookup tasks').output.firstRow.items[0].executable,'/executions?from=1692263789000')",
+						"type": "Expression"
+					}
+				}
+			},
+			{
+				"name": "Set variable v_task_count",
+				"type": "SetVariable",
+				"dependsOn": [
+					{
+						"activity": "Set variable v_base_url",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"variableName": "v_task_count",
+					"value": {
+						"value": "@activity('Lookup tasks').output.firstRow.total",
+						"type": "Expression"
+					}
+				}
+			},
+			{
+				"name": "Set variable v_task_count_array",
+				"type": "SetVariable",
+				"dependsOn": [],
+				"policy": {
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"variableName": "temp4",
+					"value": {
+						"value": "@add(div(sub(ticks('2023-09-05 09:16:28.000'),ticks('1990-01-01 00:00:00.000')),10000),631152000000)",
+						"type": "Expression"
+					}
+				}
+			},
+			{
+				"name": "ForEach1",
+				"type": "ForEach",
+				"dependsOn": [
+					{
+						"activity": "Lookup tasks",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"userProperties": [],
+				"typeProperties": {
+					"items": {
+						"value": "@range(0,activity('Lookup tasks').output.firstRow.total)",
+						"type": "Expression"
+					},
+					"isSequential": true,
+					"activities": [
+						{
+							"name": "Copy data executions",
+							"type": "Copy",
+							"dependsOn": [],
+							"policy": {
+								"timeout": "0.12:00:00",
+								"retry": 0,
+								"retryIntervalInSeconds": 30,
+								"secureOutput": false,
+								"secureInput": false
+							},
+							"userProperties": [],
+							"typeProperties": {
+								"source": {
+									"type": "JsonSource",
+									"additionalColumns": [
+										{
+											"name": "job_name",
+											"value": {
+												"value": "@activity('Lookup tasks').output.firstRow.items[item()].name",
+												"type": "Expression"
+											}
+										},
+										{
+											"name": "project_name",
+											"value": {
+												"value": "@activity('Lookup tasks').output.firstRow.items[item()].workspace.name",
+												"type": "Expression"
+											}
+										},
+										{
+											"name": "environment",
+											"value": {
+												"value": "@activity('Lookup tasks').output.firstRow.items[item()].workspace.environment.name",
+												"type": "Expression"
+											}
+										}
+									],
+									"storeSettings": {
+										"type": "HttpReadSettings",
+										"requestMethod": "GET"
+									},
+									"formatSettings": {
+										"type": "JsonReadSettings"
+									}
+								},
+								"sink": {
+									"type": "JsonSink",
+									"storeSettings": {
+										"type": "AzureBlobFSWriteSettings",
+										"copyBehavior": "MergeFiles"
+									},
+									"formatSettings": {
+										"type": "JsonWriteSettings"
+									}
+								},
+								"enableStaging": false
+							},
+							"inputs": [
+								{
+									"referenceName": "ds_http_json_talend",
+									"type": "DatasetReference",
+									"parameters": {
+										"p_ds_base_url": {
+											"value": "@concat('https://api.us.cloud.talend.com/processing/executables/tasks/',activity('Lookup tasks').output.firstRow.items[item()].executable,'/executions?from=1692263788000')",
+											"type": "Expression"
+										}
+									}
+								}
+							],
+							"outputs": [
+								{
+									"referenceName": "ds_adls_json_talend",
+									"type": "DatasetReference",
+									"parameters": {
+										"p_ds_direcotry": "data",
+										"p_ds_file_name": {
+											"value": "@concat('executions_',item(),'.json')",
+											"type": "Expression"
+										}
+									}
+								}
+							]
+						}
+					]
+				}
+			},
+			{
+				"name": "Copy data tasks",
+				"type": "Copy",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "JsonSource",
+						"storeSettings": {
+							"type": "HttpReadSettings",
+							"requestMethod": "GET"
+						},
+						"formatSettings": {
+							"type": "JsonReadSettings"
+						}
+					},
+					"sink": {
+						"type": "JsonSink",
+						"storeSettings": {
+							"type": "AzureBlobFSWriteSettings"
+						},
+						"formatSettings": {
+							"type": "JsonWriteSettings"
+						}
+					},
+					"enableStaging": false
+				},
+				"inputs": [
+					{
+						"referenceName": "ds_http_json_talend",
+						"type": "DatasetReference",
+						"parameters": {
+							"p_ds_base_url": "https://api.us.cloud.talend.com/processing/executables/tasks?environmentId=61f2a1c03cfbdd1bd8f198f8"
+						}
+					}
+				],
+				"outputs": [
+					{
+						"referenceName": "ds_adls_json_talend",
+						"type": "DatasetReference",
+						"parameters": {
+							"p_ds_direcotry": "data",
+							"p_ds_file_name": "tasks.json"
+						}
+					}
+				]
+			}
+		],
+		"variables": {
+			"v_base_url": {
+				"type": "String"
+			},
+			"v_task_count": {
+				"type": "Integer"
+			},
+			"v_task_count_array": {
+				"type": "Array"
+			},
+			"temp4": {
+				"type": "Integer"
+			},
+			"v_base_url_tasks": {
+				"type": "String"
+			},
+			"v_tasks_list_file": {
+				"type": "String"
+			}
+		},
+		"folder": {
+			"name": "Test_Pipelines"
+		},
+		"annotations": [],
+		"lastPublishTime": "2023-10-04T09:52:36Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}

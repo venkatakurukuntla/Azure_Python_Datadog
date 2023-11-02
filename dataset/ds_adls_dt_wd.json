@@ -1,0 +1,42 @@
+{
+	"name": "ds_adls_dt_wd",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "ls_adls_stgacct02",
+			"type": "LinkedServiceReference"
+		},
+		"parameters": {
+			"p_ds_directory": {
+				"type": "string"
+			},
+			"p_ds_file_name": {
+				"type": "string"
+			}
+		},
+		"folder": {
+			"name": "App_Workday"
+		},
+		"annotations": [],
+		"type": "DelimitedText",
+		"typeProperties": {
+			"location": {
+				"type": "AzureBlobFSLocation",
+				"fileName": {
+					"value": "@dataset().p_ds_file_name",
+					"type": "Expression"
+				},
+				"folderPath": {
+					"value": "@dataset().p_ds_directory",
+					"type": "Expression"
+				},
+				"fileSystem": "workday"
+			},
+			"columnDelimiter": ",",
+			"escapeChar": "\\",
+			"firstRowAsHeader": true,
+			"quoteChar": "\""
+		},
+		"schema": []
+	},
+	"type": "Microsoft.DataFactory/factories/datasets"
+}

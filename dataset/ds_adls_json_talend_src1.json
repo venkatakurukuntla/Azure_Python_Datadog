@@ -1,0 +1,108 @@
+{
+	"name": "ds_adls_json_talend_src1",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "ls_adls_stgacct03",
+			"type": "LinkedServiceReference"
+		},
+		"folder": {
+			"name": "Test"
+		},
+		"annotations": [],
+		"type": "Json",
+		"typeProperties": {
+			"location": {
+				"type": "AzureBlobFSLocation",
+				"fileName": "tasks.json",
+				"folderPath": "data",
+				"fileSystem": "talend"
+			}
+		},
+		"schema": {
+			"type": "object",
+			"properties": {
+				"executable": {
+					"type": "string"
+				},
+				"name": {
+					"type": "string"
+				},
+				"workspace": {
+					"type": "object",
+					"properties": {
+						"id": {
+							"type": "string"
+						},
+						"name": {
+							"type": "string"
+						},
+						"description": {
+							"type": "string"
+						},
+						"owner": {
+							"type": "string"
+						},
+						"type": {
+							"type": "string"
+						},
+						"environment": {
+							"type": "object",
+							"properties": {
+								"id": {
+									"type": "string"
+								},
+								"name": {
+									"type": "string"
+								},
+								"description": {
+									"type": "string"
+								},
+								"default": {
+									"type": "boolean"
+								}
+							}
+						}
+					}
+				},
+				"artifactId": {
+					"type": "string"
+				},
+				"runtime": {
+					"type": "object",
+					"properties": {
+						"type": {
+							"type": "string"
+						},
+						"id": {
+							"type": "string"
+						},
+						"runProfileId": {
+							"type": "string"
+						}
+					}
+				},
+				"taskPauseDetails": {
+					"type": "object",
+					"properties": {
+						"pause": {
+							"type": "boolean"
+						},
+						"pauseContext": {
+							"type": "string"
+						},
+						"pauseDate": {
+							"type": "string"
+						},
+						"user": {
+							"type": "string"
+						},
+						"userType": {
+							"type": "string"
+						}
+					}
+				}
+			}
+		}
+	},
+	"type": "Microsoft.DataFactory/factories/datasets"
+}

@@ -1,0 +1,277 @@
+{
+	"name": "pipeline1_bkp",
+	"properties": {
+		"activities": [
+			{
+				"name": "Copy data tasks",
+				"type": "Copy",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "JsonSource",
+						"storeSettings": {
+							"type": "HttpReadSettings",
+							"requestMethod": "GET"
+						},
+						"formatSettings": {
+							"type": "JsonReadSettings"
+						}
+					},
+					"sink": {
+						"type": "JsonSink",
+						"storeSettings": {
+							"type": "AzureBlobFSWriteSettings"
+						},
+						"formatSettings": {
+							"type": "JsonWriteSettings"
+						}
+					},
+					"enableStaging": false
+				},
+				"inputs": [
+					{
+						"referenceName": "ds_http_json_talend",
+						"type": "DatasetReference",
+						"parameters": {
+							"p_ds_base_url": "https://api.us.cloud.talend.com/processing/executables/tasks?environmentId=61f2a1c03cfbdd1bd8f198f8"
+						}
+					}
+				],
+				"outputs": [
+					{
+						"referenceName": "ds_adls_json_talend",
+						"type": "DatasetReference",
+						"parameters": {
+							"p_ds_direcotry": "data",
+							"p_ds_file_name": "tasks.json"
+						}
+					}
+				]
+			},
+			{
+				"name": "Lookup1",
+				"type": "Lookup",
+				"dependsOn": [
+					{
+						"activity": "Copy data tasks",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "JsonSource",
+						"storeSettings": {
+							"type": "AzureBlobFSReadSettings",
+							"recursive": true,
+							"enablePartitionDiscovery": false
+						},
+						"formatSettings": {
+							"type": "JsonReadSettings"
+						}
+					},
+					"dataset": {
+						"referenceName": "ds_adls_json_talend",
+						"type": "DatasetReference",
+						"parameters": {
+							"p_ds_direcotry": "data",
+							"p_ds_file_name": "tasks.json"
+						}
+					},
+					"firstRowOnly": true
+				}
+			},
+			{
+				"name": "Set variable1",
+				"type": "SetVariable",
+				"dependsOn": [
+					{
+						"activity": "Lookup1",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"variableName": "temp",
+					"value": {
+						"value": "@concat('https://api.us.cloud.talend.com/processing/executables/tasks/',activity('Lookup1').output.firstRow.items[0].executable,'/executions?from=1692263789000')",
+						"type": "Expression"
+					}
+				}
+			},
+			{
+				"name": "Copy data executions",
+				"type": "Copy",
+				"dependsOn": [
+					{
+						"activity": "Set variable1",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "JsonSource",
+						"storeSettings": {
+							"type": "HttpReadSettings",
+							"requestMethod": "GET"
+						},
+						"formatSettings": {
+							"type": "JsonReadSettings"
+						}
+					},
+					"sink": {
+						"type": "JsonSink",
+						"storeSettings": {
+							"type": "AzureBlobFSWriteSettings",
+							"copyBehavior": "MergeFiles"
+						},
+						"formatSettings": {
+							"type": "JsonWriteSettings"
+						}
+					},
+					"enableStaging": false
+				},
+				"inputs": [
+					{
+						"referenceName": "ds_http_json_talend",
+						"type": "DatasetReference",
+						"parameters": {
+							"p_ds_base_url": {
+								"value": "@concat('https://api.us.cloud.talend.com/processing/executables/tasks/',activity('Lookup1').output.firstRow.items[0].executable,'/executions?from=1692263789000')",
+								"type": "Expression"
+							}
+						}
+					}
+				],
+				"outputs": [
+					{
+						"referenceName": "ds_adls_json_talend",
+						"type": "DatasetReference",
+						"parameters": {
+							"p_ds_direcotry": "data",
+							"p_ds_file_name": "executions.json"
+						}
+					}
+				]
+			},
+			{
+				"name": "Copy data2_copy1_copy1",
+				"type": "Copy",
+				"dependsOn": [
+					{
+						"activity": "Lookup1",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "JsonSource",
+						"storeSettings": {
+							"type": "HttpReadSettings",
+							"requestMethod": "GET"
+						},
+						"formatSettings": {
+							"type": "JsonReadSettings"
+						}
+					},
+					"sink": {
+						"type": "JsonSink",
+						"storeSettings": {
+							"type": "AzureBlobFSWriteSettings",
+							"copyBehavior": "MergeFiles"
+						},
+						"formatSettings": {
+							"type": "JsonWriteSettings"
+						}
+					},
+					"enableStaging": false
+				},
+				"inputs": [
+					{
+						"referenceName": "ds_http_json_talend",
+						"type": "DatasetReference",
+						"parameters": {
+							"p_ds_base_url": {
+								"value": "@variables('temp2')",
+								"type": "Expression"
+							}
+						}
+					}
+				],
+				"outputs": [
+					{
+						"referenceName": "ds_adls_json_talend",
+						"type": "DatasetReference",
+						"parameters": {
+							"p_ds_direcotry": "data",
+							"p_ds_file_name": "executions.json"
+						}
+					}
+				]
+			}
+		],
+		"variables": {
+			"temp": {
+				"type": "String"
+			},
+			"temp2": {
+				"type": "Integer"
+			},
+			"temp3": {
+				"type": "Integer"
+			},
+			"temp4": {
+				"type": "Integer"
+			}
+		},
+		"folder": {
+			"name": "Test_Pipelines"
+		},
+		"annotations": [],
+		"lastPublishTime": "2023-10-04T09:52:36Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}

@@ -1,0 +1,24 @@
+{
+	"name": "ds_adls_json_talend_integration_jobs",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "ls_adls_stgacct03",
+			"type": "LinkedServiceReference"
+		},
+		"folder": {
+			"name": "Test"
+		},
+		"annotations": [],
+		"type": "Json",
+		"typeProperties": {
+			"location": {
+				"type": "AzureBlobFSLocation",
+				"fileName": "integration_jobs.json",
+				"folderPath": "integration_jobs/data",
+				"fileSystem": "talend"
+			}
+		},
+		"schema": {}
+	},
+	"type": "Microsoft.DataFactory/factories/datasets"
+}

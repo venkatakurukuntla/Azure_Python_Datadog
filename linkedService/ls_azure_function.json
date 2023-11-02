@@ -1,0 +1,29 @@
+{
+	"name": "ls_azure_function",
+	"type": "Microsoft.DataFactory/factories/linkedservices",
+	"properties": {
+		"parameters": {
+			"p_ls_function_key": {
+				"type": "String"
+			}
+		},
+		"annotations": [],
+		"type": "AzureFunction",
+		"typeProperties": {
+			"functionAppUrl": "https://coprit-dev-datadog-fapp-use.azurewebsites.net",
+			"functionKey": {
+				"type": "AzureKeyVaultSecret",
+				"store": {
+					"referenceName": "ls_azure_key_vault",
+					"type": "LinkedServiceReference"
+				},
+				"secretName": {
+					"value": "@linkedService().p_ls_function_key",
+					"type": "Expression"
+				}
+			},
+			"authentication": "MSI",
+			"resourceId": "02104360-90ee-4562-a9f7-07d6eeffe14b"
+		}
+	}
+}

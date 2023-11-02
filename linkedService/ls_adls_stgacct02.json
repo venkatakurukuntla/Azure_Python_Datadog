@@ -1,0 +1,11 @@
+{
+	"name": "ls_adls_stgacct02",
+	"type": "Microsoft.DataFactory/factories/linkedservices",
+	"properties": {
+		"annotations": [],
+		"type": "AzureBlobFS",
+		"typeProperties": {
+			"url": "https://devdatadogstgacct02.dfs.core.windows.net/"
+		}
+	}
+}

@@ -1,0 +1,262 @@
+{
+	"name": "pl_extract_wd_integration_events_data_bkp",
+	"properties": {
+		"activities": [
+			{
+				"name": "Copy data integration_events",
+				"type": "Copy",
+				"dependsOn": [
+					{
+						"activity": "Lookup param_file",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "JsonSource",
+						"storeSettings": {
+							"type": "HttpReadSettings",
+							"requestMethod": "GET"
+						},
+						"formatSettings": {
+							"type": "JsonReadSettings"
+						}
+					},
+					"sink": {
+						"type": "JsonSink",
+						"storeSettings": {
+							"type": "AzureBlobFSWriteSettings"
+						},
+						"formatSettings": {
+							"type": "JsonWriteSettings"
+						}
+					},
+					"enableStaging": false
+				},
+				"inputs": [
+					{
+						"referenceName": "ds_http_json_wd",
+						"type": "DatasetReference",
+						"parameters": {
+							"p_ds_base_url": {
+								"value": "@concat(activity('Lookup param_file').output.value[0].base_url,'?Sent_After=',activity('Lookup pl_trigger_time').output.firstRow.pl_trigger_time,'&format=json')",
+								"type": "Expression"
+							},
+							"p_ds_user_name": {
+								"value": "@activity('Lookup param_file').output.value[1].user_name",
+								"type": "Expression"
+							}
+						}
+					}
+				],
+				"outputs": [
+					{
+						"referenceName": "ds_adls_json_wd",
+						"type": "DatasetReference",
+						"parameters": {
+							"p_ds_directory": "integration_events/data",
+							"p_ds_file_name": {
+								"value": "@concat('integration_events_',convertFromUtc(utcnow(), 'Eastern Standard Time', 'yyyyMMddHHmmss'),'.json')",
+								"type": "Expression"
+							}
+						}
+					}
+				]
+			},
+			{
+				"name": "Lookup param_file",
+				"type": "Lookup",
+				"dependsOn": [
+					{
+						"activity": "Lookup pl_trigger_time",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "JsonSource",
+						"storeSettings": {
+							"type": "AzureBlobFSReadSettings",
+							"recursive": true,
+							"enablePartitionDiscovery": false
+						},
+						"formatSettings": {
+							"type": "JsonReadSettings"
+						}
+					},
+					"dataset": {
+						"referenceName": "ds_adls_json_wd",
+						"type": "DatasetReference",
+						"parameters": {
+							"p_ds_directory": "integration_events/param",
+							"p_ds_file_name": "wd_integration_events_param_file.json"
+						}
+					},
+					"firstRowOnly": false
+				}
+			},
+			{
+				"name": "Lookup pl_trigger_time",
+				"type": "Lookup",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "DelimitedTextSource",
+						"storeSettings": {
+							"type": "AzureBlobFSReadSettings",
+							"recursive": true,
+							"enablePartitionDiscovery": false
+						},
+						"formatSettings": {
+							"type": "DelimitedTextReadSettings"
+						}
+					},
+					"dataset": {
+						"referenceName": "ds_adls_dt_wd",
+						"type": "DatasetReference",
+						"parameters": {
+							"p_ds_directory": "integration_events/param",
+							"p_ds_file_name": "wd_integration_events_pl_trigger_time.txt"
+						}
+					},
+					"firstRowOnly": true
+				}
+			},
+			{
+				"name": "Copy data pl_trigger_time",
+				"type": "Copy",
+				"dependsOn": [
+					{
+						"activity": "Copy data integration_events",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "DelimitedTextSource",
+						"additionalColumns": [
+							{
+								"name": "pl_trigger_time",
+								"value": {
+									"value": "@convertFromUtc(pipeline().TriggerTime, 'Mountain Standard Time')",
+									"type": "Expression"
+								}
+							}
+						],
+						"storeSettings": {
+							"type": "AzureBlobFSReadSettings",
+							"recursive": true,
+							"enablePartitionDiscovery": false
+						},
+						"formatSettings": {
+							"type": "DelimitedTextReadSettings"
+						}
+					},
+					"sink": {
+						"type": "DelimitedTextSink",
+						"storeSettings": {
+							"type": "AzureBlobFSWriteSettings"
+						},
+						"formatSettings": {
+							"type": "DelimitedTextWriteSettings",
+							"quoteAllText": true,
+							"fileExtension": ".txt"
+						}
+					},
+					"enableStaging": false,
+					"translator": {
+						"type": "TabularTranslator",
+						"mappings": [
+							{
+								"source": {
+									"name": "pl_trigger_time",
+									"type": "String"
+								},
+								"sink": {
+									"name": "pl_trigger_time",
+									"type": "String",
+									"physicalType": "String"
+								}
+							}
+						],
+						"typeConversion": true,
+						"typeConversionSettings": {
+							"allowDataTruncation": true,
+							"treatBooleanAsNumber": false
+						}
+					}
+				},
+				"inputs": [
+					{
+						"referenceName": "ds_adls_dt_wd",
+						"type": "DatasetReference",
+						"parameters": {
+							"p_ds_directory": "integration_events/param",
+							"p_ds_file_name": "dummy.txt"
+						}
+					}
+				],
+				"outputs": [
+					{
+						"referenceName": "ds_adls_dt_wd",
+						"type": "DatasetReference",
+						"parameters": {
+							"p_ds_directory": "integration_events/param",
+							"p_ds_file_name": "wd_integration_events_pl_trigger_time.txt"
+						}
+					}
+				]
+			}
+		],
+		"variables": {
+			"v_object": {
+				"type": "String",
+				"defaultValue": "procesing_time"
+			}
+		},
+		"folder": {
+			"name": "BKP Pipelines"
+		},
+		"annotations": [],
+		"lastPublishTime": "2023-10-04T09:52:36Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}

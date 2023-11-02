@@ -1,0 +1,28 @@
+{
+	"name": "ls_http_talend",
+	"type": "Microsoft.DataFactory/factories/linkedservices",
+	"properties": {
+		"parameters": {
+			"p_ls_base_url": {
+				"type": "string"
+			}
+		},
+		"annotations": [],
+		"type": "HttpServer",
+		"typeProperties": {
+			"url": "@{linkedService().p_ls_base_url}",
+			"enableServerCertificateValidation": true,
+			"authenticationType": "Anonymous",
+			"authHeaders": {
+				"Authorization": {
+					"type": "AzureKeyVaultSecret",
+					"store": {
+						"referenceName": "ls_azure_key_vault",
+						"type": "LinkedServiceReference"
+					},
+					"secretName": "TalendBearerToken"
+				}
+			}
+		}
+	}
+}

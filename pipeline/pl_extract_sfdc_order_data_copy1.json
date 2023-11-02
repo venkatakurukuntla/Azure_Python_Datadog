@@ -1,0 +1,416 @@
+{
+	"name": "pl_extract_sfdc_order_data_copy1",
+	"properties": {
+		"activities": [
+			{
+				"name": "Copy data main",
+				"type": "Copy",
+				"dependsOn": [
+					{
+						"activity": "Lookup last_extract_time",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					},
+					{
+						"activity": "Lookup config",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "SalesforceSource",
+						"query": {
+							"value": "@activity('Lookup config').output.value[3].soql",
+							"type": "Expression"
+						},
+						"readBehavior": "query"
+					},
+					"sink": {
+						"type": "DelimitedTextSink",
+						"storeSettings": {
+							"type": "AzureBlobFSWriteSettings"
+						},
+						"formatSettings": {
+							"type": "DelimitedTextWriteSettings",
+							"quoteAllText": true,
+							"fileExtension": ".txt"
+						}
+					},
+					"enableStaging": false,
+					"translator": {
+						"type": "TabularTranslator",
+						"typeConversion": true,
+						"typeConversionSettings": {
+							"allowDataTruncation": true,
+							"treatBooleanAsNumber": false
+						}
+					}
+				},
+				"inputs": [
+					{
+						"referenceName": "ds_sfdc",
+						"type": "DatasetReference",
+						"parameters": {
+							"p_ds_base_url": {
+								"value": "@activity('Lookup config').output.value[0].base_url",
+								"type": "Expression"
+							},
+							"p_ds_user_name": {
+								"value": "@activity('Lookup config').output.value[1].user_name",
+								"type": "Expression"
+							}
+						}
+					}
+				],
+				"outputs": [
+					{
+						"referenceName": "ds_adls_dt_sfdc",
+						"type": "DatasetReference",
+						"parameters": {
+							"p_ds_dircetory": {
+								"value": "@concat(variables('v_object'),'/data')",
+								"type": "Expression"
+							},
+							"p_ds_file_name": {
+								"value": "@concat(variables('v_object'),'_',convertFromUtc(utcNow(),'Eastern Standard Time','yyyyMMddHHmmss'),'.csv')",
+								"type": "Expression"
+							}
+						}
+					}
+				]
+			},
+			{
+				"name": "Lookup last_extract_time",
+				"type": "Lookup",
+				"state": "Inactive",
+				"onInactiveMarkAs": "Succeeded",
+				"dependsOn": [
+					{
+						"activity": "Set variable v_object",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "DelimitedTextSource",
+						"storeSettings": {
+							"type": "AzureBlobFSReadSettings",
+							"recursive": true,
+							"enablePartitionDiscovery": false
+						},
+						"formatSettings": {
+							"type": "DelimitedTextReadSettings"
+						}
+					},
+					"dataset": {
+						"referenceName": "ds_adls_dt_sfdc",
+						"type": "DatasetReference",
+						"parameters": {
+							"p_ds_dircetory": "@concat(variables('v_object'), '/logic')",
+							"p_ds_file_name": "param_last_extract_time.txt"
+						}
+					},
+					"firstRowOnly": true
+				}
+			},
+			{
+				"name": "Copy data last_extract_time",
+				"type": "Copy",
+				"state": "Inactive",
+				"onInactiveMarkAs": "Succeeded",
+				"dependsOn": [
+					{
+						"activity": "Copy data main",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					},
+					{
+						"activity": "Copy data timestamp",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "DelimitedTextSource",
+						"additionalColumns": [
+							{
+								"name": "last_extract_time",
+								"value": {
+									"value": "@convertFromUtc(pipeline().TriggerTime, 'Mountain Standard Time')",
+									"type": "Expression"
+								}
+							}
+						],
+						"storeSettings": {
+							"type": "AzureBlobFSReadSettings",
+							"recursive": true,
+							"enablePartitionDiscovery": false
+						},
+						"formatSettings": {
+							"type": "DelimitedTextReadSettings"
+						}
+					},
+					"sink": {
+						"type": "DelimitedTextSink",
+						"storeSettings": {
+							"type": "AzureBlobFSWriteSettings"
+						},
+						"formatSettings": {
+							"type": "DelimitedTextWriteSettings",
+							"quoteAllText": true,
+							"fileExtension": ".txt"
+						}
+					},
+					"enableStaging": false,
+					"translator": {
+						"type": "TabularTranslator",
+						"mappings": [
+							{
+								"source": {
+									"name": "last_extract_time",
+									"type": "String"
+								},
+								"sink": {
+									"name": "last_extract_time",
+									"type": "String",
+									"physicalType": "String"
+								}
+							}
+						],
+						"typeConversion": true,
+						"typeConversionSettings": {
+							"allowDataTruncation": true,
+							"treatBooleanAsNumber": false
+						}
+					}
+				},
+				"inputs": [
+					{
+						"referenceName": "ds_adls_dt_sfdc",
+						"type": "DatasetReference",
+						"parameters": {
+							"p_ds_dircetory": {
+								"value": "@concat(variables('v_object'),'/logic')",
+								"type": "Expression"
+							},
+							"p_ds_file_name": "dummy.txt"
+						}
+					}
+				],
+				"outputs": [
+					{
+						"referenceName": "ds_adls_dt_sfdc",
+						"type": "DatasetReference",
+						"parameters": {
+							"p_ds_dircetory": {
+								"value": "@concat(variables('v_object'),'/logic')",
+								"type": "Expression"
+							},
+							"p_ds_file_name": "param_last_extract_time.txt"
+						}
+					}
+				]
+			},
+			{
+				"name": "Set variable v_object",
+				"type": "SetVariable",
+				"dependsOn": [],
+				"policy": {
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"variableName": "v_object",
+					"value": "order"
+				}
+			},
+			{
+				"name": "Lookup config",
+				"type": "Lookup",
+				"dependsOn": [
+					{
+						"activity": "Set variable v_object",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "JsonSource",
+						"storeSettings": {
+							"type": "AzureBlobFSReadSettings",
+							"recursive": true,
+							"enablePartitionDiscovery": false
+						},
+						"formatSettings": {
+							"type": "JsonReadSettings"
+						}
+					},
+					"dataset": {
+						"referenceName": "ds_adls_json_sfdc",
+						"type": "DatasetReference",
+						"parameters": {
+							"p_ds_directory": {
+								"value": "@concat(variables('v_object'),'/logic')",
+								"type": "Expression"
+							},
+							"p_ds_file_name": "param_config.json"
+						}
+					},
+					"firstRowOnly": false
+				}
+			},
+			{
+				"name": "Copy data timestamp",
+				"type": "Copy",
+				"dependsOn": [
+					{
+						"activity": "Lookup config",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					},
+					{
+						"activity": "Lookup last_extract_time",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "DelimitedTextSource",
+						"additionalColumns": [
+							{
+								"name": "timestamp",
+								"value": {
+									"value": "@convertFromUtc(utcNow(),'Eastern Standard Time', 'yyyy-MM-dd HH:mm:ss.fff')",
+									"type": "Expression"
+								}
+							}
+						],
+						"storeSettings": {
+							"type": "AzureBlobFSReadSettings",
+							"recursive": true,
+							"enablePartitionDiscovery": false
+						},
+						"formatSettings": {
+							"type": "DelimitedTextReadSettings"
+						}
+					},
+					"sink": {
+						"type": "JsonSink",
+						"storeSettings": {
+							"type": "AzureBlobFSWriteSettings"
+						},
+						"formatSettings": {
+							"type": "JsonWriteSettings"
+						}
+					},
+					"enableStaging": false,
+					"translator": {
+						"type": "TabularTranslator",
+						"mappings": [
+							{
+								"source": {
+									"name": "timestamp",
+									"type": "String"
+								},
+								"sink": {
+									"path": "$['timestamp']"
+								}
+							}
+						]
+					}
+				},
+				"inputs": [
+					{
+						"referenceName": "ds_adls_dt_sfdc",
+						"type": "DatasetReference",
+						"parameters": {
+							"p_ds_dircetory": {
+								"value": "@concat(variables('v_object'),'/logic')",
+								"type": "Expression"
+							},
+							"p_ds_file_name": "dummy.txt"
+						}
+					}
+				],
+				"outputs": [
+					{
+						"referenceName": "ds_adls_json_sfdc",
+						"type": "DatasetReference",
+						"parameters": {
+							"p_ds_directory": {
+								"value": "@concat(variables('v_object'),'/data')",
+								"type": "Expression"
+							},
+							"p_ds_file_name": "timestamp.json"
+						}
+					}
+				]
+			}
+		],
+		"variables": {
+			"v_object": {
+				"type": "String"
+			}
+		},
+		"folder": {
+			"name": "BKP Pipelines"
+		},
+		"annotations": [],
+		"lastPublishTime": "2023-10-04T09:52:36Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}

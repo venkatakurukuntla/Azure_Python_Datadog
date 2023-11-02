@@ -1,0 +1,32 @@
+{
+	"name": "ds_http_json_talend",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "ls_http_talend",
+			"type": "LinkedServiceReference",
+			"parameters": {
+				"p_ls_base_url": {
+					"value": "@dataset().p_ds_base_url",
+					"type": "Expression"
+				}
+			}
+		},
+		"parameters": {
+			"p_ds_base_url": {
+				"type": "string"
+			}
+		},
+		"folder": {
+			"name": "App_Talend"
+		},
+		"annotations": [],
+		"type": "Json",
+		"typeProperties": {
+			"location": {
+				"type": "HttpServerLocation"
+			}
+		},
+		"schema": {}
+	},
+	"type": "Microsoft.DataFactory/factories/datasets"
+}

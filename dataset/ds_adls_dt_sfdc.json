@@ -1,0 +1,99 @@
+{
+	"name": "ds_adls_dt_sfdc",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "ls_adls_stgacct01",
+			"type": "LinkedServiceReference"
+		},
+		"parameters": {
+			"p_ds_dircetory": {
+				"type": "String"
+			},
+			"p_ds_file_name": {
+				"type": "string"
+			}
+		},
+		"folder": {
+			"name": "App_Salesforce"
+		},
+		"annotations": [],
+		"type": "DelimitedText",
+		"typeProperties": {
+			"location": {
+				"type": "AzureBlobFSLocation",
+				"fileName": {
+					"value": "@dataset().p_ds_file_name",
+					"type": "Expression"
+				},
+				"folderPath": {
+					"value": "@dataset().p_ds_dircetory",
+					"type": "Expression"
+				},
+				"fileSystem": "salesforce"
+			},
+			"columnDelimiter": ",",
+			"escapeChar": "\\",
+			"firstRowAsHeader": true,
+			"quoteChar": "\""
+		},
+		"schema": [
+			{
+				"name": "WorkdayContractExternalID__c",
+				"type": "String"
+			},
+			{
+				"name": "Status",
+				"type": "String"
+			},
+			{
+				"name": "EffectiveDate",
+				"type": "String"
+			},
+			{
+				"name": "Type",
+				"type": "String"
+			},
+			{
+				"name": "TotalAmount",
+				"type": "String"
+			},
+			{
+				"name": "CreatedDate",
+				"type": "String"
+			},
+			{
+				"name": "Account.Name",
+				"type": "String"
+			},
+			{
+				"name": "Integration_Status__c",
+				"type": "String"
+			},
+			{
+				"name": "Sync_Customer_to_WD__c",
+				"type": "String"
+			},
+			{
+				"name": "Id",
+				"type": "String"
+			},
+			{
+				"name": "CurrencyIsoCode",
+				"type": "String"
+			},
+			{
+				"name": "Integration_Error_Message__c",
+				"type": "String"
+			},
+			{
+				"name": "OrderNumber",
+				"type": "String"
+			},
+			{
+				"name": "LastModifiedDate",
+				"type": "String"
+			}
+		]
+	},
+	"type": "Microsoft.DataFactory/factories/datasets"
+}

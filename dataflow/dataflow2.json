@@ -1,0 +1,97 @@
+{
+	"name": "dataflow2",
+	"properties": {
+		"folder": {
+			"name": "Test"
+		},
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"dataset": {
+						"referenceName": "ds_adls_json_talend_tasks",
+						"type": "DatasetReference"
+					},
+					"name": "source1"
+				},
+				{
+					"dataset": {
+						"referenceName": "ds_adls_json_talend_executions",
+						"type": "DatasetReference"
+					},
+					"name": "source2"
+				}
+			],
+			"sinks": [
+				{
+					"dataset": {
+						"referenceName": "ds_adls_json_talend_integration_jobs",
+						"type": "DatasetReference"
+					},
+					"name": "sink1"
+				}
+			],
+			"transformations": [
+				{
+					"name": "join1"
+				}
+			],
+			"scriptLines": [
+				"source(output(",
+				"          executable as string,",
+				"          name as string,",
+				"          workspace as (id as string, name as string, description as string, owner as string, type as string, environment as (id as string, name as string, description as string, default as boolean)),",
+				"          artifactId as string,",
+				"          runtime as (type as string, id as string, runProfileId as string),",
+				"          taskPauseDetails as (pause as boolean, pauseContext as string, pauseDate as string, user as string, userType as string)",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     ignoreNoFilesFound: false,",
+				"     documentForm: 'documentPerLine') ~> source1",
+				"source(output(",
+				"          executionId as string,",
+				"          startTimestamp as string,",
+				"          triggerTimestamp as string,",
+				"          finishTimestamp as string,",
+				"          userId as string,",
+				"          taskId as string,",
+				"          taskVersion as string,",
+				"          executionType as string,",
+				"          status as string,",
+				"          runtime as (type as string, engineId as string),",
+				"          errorMessage as string,",
+				"          executionStatus as string,",
+				"          parallelExecutionAllowed as boolean",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     ignoreNoFilesFound: false,",
+				"     documentForm: 'documentPerLine') ~> source2",
+				"source1, source2 join(executable == taskId,",
+				"     joinType:'inner',",
+				"     matchType:'exact',",
+				"     ignoreSpaces: false,",
+				"     broadcast: 'auto')~> join1",
+				"join1 sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     umask: 0022,",
+				"     preCommands: [],",
+				"     postCommands: [],",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true,",
+				"     mapColumn(",
+				"          ENVIRONMENT = workspace.environment.name,",
+				"          PROJECT = workspace.name,",
+				"          EXECUTIONID = executionId,",
+				"          JOBNAME = name,",
+				"          START_TIME = startTimestamp,",
+				"          END_TIME = finishTimestamp,",
+				"          STATUS = status,",
+				"          EXECUTIONTYPE = executionType,",
+				"          ERROR_MESSAGE = errorMessage",
+				"     )) ~> sink1"
+			]
+		}
+	}
+}

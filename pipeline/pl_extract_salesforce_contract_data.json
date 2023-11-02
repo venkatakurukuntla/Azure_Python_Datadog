@@ -1,0 +1,533 @@
+{
+	"name": "pl_extract_salesforce_contract_data",
+	"properties": {
+		"activities": [
+			{
+				"name": "Copy data main",
+				"type": "Copy",
+				"dependsOn": [
+					{
+						"activity": "Lookup config",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "SalesforceSource",
+						"query": {
+							"value": "@activity('Lookup config').output.value[3].soql",
+							"type": "Expression"
+						},
+						"readBehavior": "query"
+					},
+					"sink": {
+						"type": "DelimitedTextSink",
+						"storeSettings": {
+							"type": "AzureBlobFSWriteSettings"
+						},
+						"formatSettings": {
+							"type": "DelimitedTextWriteSettings",
+							"quoteAllText": true,
+							"fileExtension": ".txt"
+						}
+					},
+					"enableStaging": false,
+					"translator": {
+						"type": "TabularTranslator",
+						"typeConversion": true,
+						"typeConversionSettings": {
+							"allowDataTruncation": true,
+							"treatBooleanAsNumber": false
+						}
+					}
+				},
+				"inputs": [
+					{
+						"referenceName": "ds_sfdc",
+						"type": "DatasetReference",
+						"parameters": {
+							"p_ds_base_url": {
+								"value": "@activity('Lookup config').output.value[0].base_url",
+								"type": "Expression"
+							},
+							"p_ds_user_name": {
+								"value": "@activity('Lookup config').output.value[1].user_name",
+								"type": "Expression"
+							}
+						}
+					}
+				],
+				"outputs": [
+					{
+						"referenceName": "ds_adls_dt_sfdc",
+						"type": "DatasetReference",
+						"parameters": {
+							"p_ds_dircetory": {
+								"value": "@concat(variables('v_object'),'/data')",
+								"type": "Expression"
+							},
+							"p_ds_file_name": {
+								"value": "@concat(variables('v_object'),'_',convertFromUtc(utcNow(),'Eastern Standard Time','yyyyMMddHHmmss'),'.csv')",
+								"type": "Expression"
+							}
+						}
+					}
+				]
+			},
+			{
+				"name": "Set variable v_object",
+				"type": "SetVariable",
+				"dependsOn": [],
+				"policy": {
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"variableName": "v_object",
+					"value": "contract"
+				}
+			},
+			{
+				"name": "Lookup config",
+				"type": "Lookup",
+				"dependsOn": [
+					{
+						"activity": "Set variable v_object",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "JsonSource",
+						"storeSettings": {
+							"type": "AzureBlobFSReadSettings",
+							"recursive": true,
+							"enablePartitionDiscovery": false
+						},
+						"formatSettings": {
+							"type": "JsonReadSettings"
+						}
+					},
+					"dataset": {
+						"referenceName": "ds_adls_json_sfdc",
+						"type": "DatasetReference",
+						"parameters": {
+							"p_ds_directory": {
+								"value": "@concat(variables('v_object'),'/logic')",
+								"type": "Expression"
+							},
+							"p_ds_file_name": "param_config.json"
+						}
+					},
+					"firstRowOnly": false
+				}
+			},
+			{
+				"name": "Copy data timestamp",
+				"type": "Copy",
+				"dependsOn": [
+					{
+						"activity": "Lookup config",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "DelimitedTextSource",
+						"additionalColumns": [
+							{
+								"name": "timestamp",
+								"value": {
+									"value": "@convertFromUtc(utcNow(),'Eastern Standard Time', 'yyyy-MM-dd HH:mm:ss.fff')",
+									"type": "Expression"
+								}
+							}
+						],
+						"storeSettings": {
+							"type": "AzureBlobFSReadSettings",
+							"recursive": true,
+							"enablePartitionDiscovery": false
+						},
+						"formatSettings": {
+							"type": "DelimitedTextReadSettings"
+						}
+					},
+					"sink": {
+						"type": "JsonSink",
+						"storeSettings": {
+							"type": "AzureBlobFSWriteSettings"
+						},
+						"formatSettings": {
+							"type": "JsonWriteSettings"
+						}
+					},
+					"enableStaging": false,
+					"translator": {
+						"type": "TabularTranslator",
+						"mappings": [
+							{
+								"source": {
+									"name": "timestamp",
+									"type": "String"
+								},
+								"sink": {
+									"path": "$['timestamp']"
+								}
+							}
+						]
+					}
+				},
+				"inputs": [
+					{
+						"referenceName": "ds_adls_dt_sfdc",
+						"type": "DatasetReference",
+						"parameters": {
+							"p_ds_dircetory": {
+								"value": "@concat(variables('v_object'),'/logic')",
+								"type": "Expression"
+							},
+							"p_ds_file_name": "dummy.txt"
+						}
+					}
+				],
+				"outputs": [
+					{
+						"referenceName": "ds_adls_json_sfdc",
+						"type": "DatasetReference",
+						"parameters": {
+							"p_ds_directory": {
+								"value": "@concat(variables('v_object'),'/data')",
+								"type": "Expression"
+							},
+							"p_ds_file_name": "timestamp.json"
+						}
+					}
+				]
+			},
+			{
+				"name": "Azure Function transform_n_load",
+				"type": "AzureFunctionActivity",
+				"dependsOn": [
+					{
+						"activity": "Azure Function on_success",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"functionName": "salesforce_contract",
+					"method": "GET"
+				},
+				"linkedServiceName": {
+					"referenceName": "ls_azure_function",
+					"type": "LinkedServiceReference",
+					"parameters": {
+						"p_ls_function_key": "FnKey-salesforce-contract"
+					}
+				}
+			},
+			{
+				"name": "Azure Function on_success",
+				"type": "AzureFunctionActivity",
+				"dependsOn": [
+					{
+						"activity": "Copy data main",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					},
+					{
+						"activity": "Copy data timestamp",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"functionName": "data_pipeline",
+					"method": "POST",
+					"body": {
+						"value": "@concat('{\"pipe_line_name\":\"',pipeline().Pipeline,'\",\"container\":\"',substring(substring(pipeline().Pipeline, 11, add(indexof(pipeline().Pipeline, '_data'),-11)), 0, indexof(substring(pipeline().Pipeline, 11, add(indexof(pipeline().Pipeline, '_data'),-11)), '_')),'\",\"directory\":\"',variables('v_object'),'/pipeline\",\"status\":\"Success\",\"job_start_time\":\"', convertFromUtc(pipeline().TriggerTime, 'Eastern Standard Time', 'yyyy-MM-dd HH:mm:ss.fff'), '\"}')",
+						"type": "Expression"
+					}
+				},
+				"linkedServiceName": {
+					"referenceName": "ls_azure_function",
+					"type": "LinkedServiceReference",
+					"parameters": {
+						"p_ls_function_key": "FnKey-data-pipeline"
+					}
+				}
+			},
+			{
+				"name": "Azure Function on_failure1",
+				"type": "AzureFunctionActivity",
+				"dependsOn": [
+					{
+						"activity": "Set variable v_object",
+						"dependencyConditions": [
+							"Failed"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"functionName": "data_pipeline",
+					"method": "POST",
+					"body": {
+						"value": "@concat('{\"pipe_line_name\":\"',pipeline().Pipeline,'\",\"container\":\"',substring(substring(pipeline().Pipeline, 11, add(indexof(pipeline().Pipeline, '_data'),-11)), 0, indexof(substring(pipeline().Pipeline, 11, add(indexof(pipeline().Pipeline, '_data'),-11)), '_')),'\",\"directory\":\"',variables('v_object'),'/pipeline\",\"status\":\"Failure\",\"job_start_time\":\"', convertFromUtc(pipeline().TriggerTime, 'Eastern Standard Time', 'yyyy-MM-dd HH:mm:ss.fff'), '\"}')",
+						"type": "Expression"
+					}
+				},
+				"linkedServiceName": {
+					"referenceName": "ls_azure_function",
+					"type": "LinkedServiceReference",
+					"parameters": {
+						"p_ls_function_key": "FnKey-data-pipeline"
+					}
+				}
+			},
+			{
+				"name": "Azure Function on_failure_in_transformation",
+				"type": "AzureFunctionActivity",
+				"dependsOn": [
+					{
+						"activity": "Azure Function transform_n_load",
+						"dependencyConditions": [
+							"Failed"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"functionName": "data_pipeline",
+					"method": "POST",
+					"body": {
+						"value": "@concat('{\"pipe_line_name\":\"',replace(pipeline().Pipeline, 'extract', 'transform'),'\",\"container\":\"',substring(substring(pipeline().Pipeline, 11, add(indexof(pipeline().Pipeline, '_data'),-11)), 0, indexof(substring(pipeline().Pipeline, 11, add(indexof(pipeline().Pipeline, '_data'),-11)), '_')),'\",\"directory\":\"',variables('v_object'),'/pipeline\",\"status\":\"Failure\",\"job_start_time\":\"', convertFromUtc(pipeline().TriggerTime, 'Eastern Standard Time', 'yyyy-MM-dd HH:mm:ss.fff'), '\"}')",
+						"type": "Expression"
+					}
+				},
+				"linkedServiceName": {
+					"referenceName": "ls_azure_function",
+					"type": "LinkedServiceReference",
+					"parameters": {
+						"p_ls_function_key": "FnKey-data-pipeline"
+					}
+				}
+			},
+			{
+				"name": "Azure Function on_failure2",
+				"type": "AzureFunctionActivity",
+				"dependsOn": [
+					{
+						"activity": "Lookup config",
+						"dependencyConditions": [
+							"Failed"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"functionName": "data_pipeline",
+					"method": "POST",
+					"body": {
+						"value": "@concat('{\"pipe_line_name\":\"',pipeline().Pipeline,'\",\"container\":\"',substring(substring(pipeline().Pipeline, 11, add(indexof(pipeline().Pipeline, '_data'),-11)), 0, indexof(substring(pipeline().Pipeline, 11, add(indexof(pipeline().Pipeline, '_data'),-11)), '_')),'\",\"directory\":\"',variables('v_object'),'/pipeline\",\"status\":\"Failure\",\"job_start_time\":\"', convertFromUtc(pipeline().TriggerTime, 'Eastern Standard Time', 'yyyy-MM-dd HH:mm:ss.fff'), '\"}')",
+						"type": "Expression"
+					}
+				},
+				"linkedServiceName": {
+					"referenceName": "ls_azure_function",
+					"type": "LinkedServiceReference",
+					"parameters": {
+						"p_ls_function_key": "FnKey-data-pipeline"
+					}
+				}
+			},
+			{
+				"name": "Azure Function on_failure3",
+				"type": "AzureFunctionActivity",
+				"dependsOn": [
+					{
+						"activity": "Copy data main",
+						"dependencyConditions": [
+							"Failed"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"functionName": "data_pipeline",
+					"method": "POST",
+					"body": {
+						"value": "@concat('{\"pipe_line_name\":\"',pipeline().Pipeline,'\",\"container\":\"',substring(substring(pipeline().Pipeline, 11, add(indexof(pipeline().Pipeline, '_data'),-11)), 0, indexof(substring(pipeline().Pipeline, 11, add(indexof(pipeline().Pipeline, '_data'),-11)), '_')),'\",\"directory\":\"',variables('v_object'),'/pipeline\",\"status\":\"Failure\",\"job_start_time\":\"', convertFromUtc(pipeline().TriggerTime, 'Eastern Standard Time', 'yyyy-MM-dd HH:mm:ss.fff'), '\"}')",
+						"type": "Expression"
+					}
+				},
+				"linkedServiceName": {
+					"referenceName": "ls_azure_function",
+					"type": "LinkedServiceReference",
+					"parameters": {
+						"p_ls_function_key": "FnKey-data-pipeline"
+					}
+				}
+			},
+			{
+				"name": "Azure Function on_failure4",
+				"type": "AzureFunctionActivity",
+				"dependsOn": [
+					{
+						"activity": "Copy data timestamp",
+						"dependencyConditions": [
+							"Failed"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"functionName": "data_pipeline",
+					"method": "POST",
+					"body": {
+						"value": "@concat('{\"pipe_line_name\":\"',pipeline().Pipeline,'\",\"container\":\"',substring(substring(pipeline().Pipeline, 11, add(indexof(pipeline().Pipeline, '_data'),-11)), 0, indexof(substring(pipeline().Pipeline, 11, add(indexof(pipeline().Pipeline, '_data'),-11)), '_')),'\",\"directory\":\"',variables('v_object'),'/pipeline\",\"status\":\"Failure\",\"job_start_time\":\"', convertFromUtc(pipeline().TriggerTime, 'Eastern Standard Time', 'yyyy-MM-dd HH:mm:ss.fff'), '\"}')",
+						"type": "Expression"
+					}
+				},
+				"linkedServiceName": {
+					"referenceName": "ls_azure_function",
+					"type": "LinkedServiceReference",
+					"parameters": {
+						"p_ls_function_key": "FnKey-data-pipeline"
+					}
+				}
+			},
+			{
+				"name": "Azure Function on_failure5",
+				"type": "AzureFunctionActivity",
+				"dependsOn": [
+					{
+						"activity": "Azure Function on_success",
+						"dependencyConditions": [
+							"Failed"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"functionName": "data_pipeline",
+					"method": "POST",
+					"body": {
+						"value": "@concat('{\"pipe_line_name\":\"',pipeline().Pipeline,'\",\"container\":\"',substring(substring(pipeline().Pipeline, 11, add(indexof(pipeline().Pipeline, '_data'),-11)), 0, indexof(substring(pipeline().Pipeline, 11, add(indexof(pipeline().Pipeline, '_data'),-11)), '_')),'\",\"directory\":\"',variables('v_object'),'/pipeline\",\"status\":\"Failure\",\"job_start_time\":\"', convertFromUtc(pipeline().TriggerTime, 'Eastern Standard Time', 'yyyy-MM-dd HH:mm:ss.fff'), '\"}')",
+						"type": "Expression"
+					}
+				},
+				"linkedServiceName": {
+					"referenceName": "ls_azure_function",
+					"type": "LinkedServiceReference",
+					"parameters": {
+						"p_ls_function_key": "FnKey-data-pipeline"
+					}
+				}
+			}
+		],
+		"variables": {
+			"v_object": {
+				"type": "String"
+			}
+		},
+		"folder": {
+			"name": "App_Salesforce"
+		},
+		"annotations": [],
+		"lastPublishTime": "2023-10-05T11:11:45Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}

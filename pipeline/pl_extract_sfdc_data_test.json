@@ -1,0 +1,402 @@
+{
+	"name": "pl_extract_sfdc_data_test",
+	"properties": {
+		"activities": [
+			{
+				"name": "Lookup config",
+				"type": "Lookup",
+				"dependsOn": [
+					{
+						"activity": "Set variable v_object",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "JsonSource",
+						"storeSettings": {
+							"type": "AzureBlobFSReadSettings",
+							"recursive": true,
+							"enablePartitionDiscovery": false
+						},
+						"formatSettings": {
+							"type": "JsonReadSettings"
+						}
+					},
+					"dataset": {
+						"referenceName": "ds_adls_json_sfdc",
+						"type": "DatasetReference",
+						"parameters": {
+							"p_ds_directory": {
+								"value": "@concat(variables('v_object'),'/logic')",
+								"type": "Expression"
+							},
+							"p_ds_file_name": "param_config.json"
+						}
+					},
+					"firstRowOnly": false
+				}
+			},
+			{
+				"name": "Lookup pl_trigger_time",
+				"type": "Lookup",
+				"dependsOn": [
+					{
+						"activity": "Set variable v_object",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "DelimitedTextSource",
+						"storeSettings": {
+							"type": "AzureBlobFSReadSettings",
+							"recursive": true,
+							"enablePartitionDiscovery": false
+						},
+						"formatSettings": {
+							"type": "DelimitedTextReadSettings"
+						}
+					},
+					"dataset": {
+						"referenceName": "ds_adls_dt_sfdc",
+						"type": "DatasetReference",
+						"parameters": {
+							"p_ds_dircetory": {
+								"value": "@concat(variables('v_object'),'/logic')",
+								"type": "Expression"
+							},
+							"p_ds_file_name": "param_pl_trigger_time.txt"
+						}
+					},
+					"firstRowOnly": true
+				}
+			},
+			{
+				"name": "Copy data pl_trigger_time",
+				"type": "Copy",
+				"dependsOn": [
+					{
+						"activity": "Copy data main",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "DelimitedTextSource",
+						"additionalColumns": [
+							{
+								"name": "pl_trigger_time",
+								"value": {
+									"value": "@convertFromUtc(pipeline().TriggerTime, 'Eastern Standard Time')",
+									"type": "Expression"
+								}
+							}
+						],
+						"storeSettings": {
+							"type": "AzureBlobFSReadSettings",
+							"recursive": true,
+							"enablePartitionDiscovery": false
+						},
+						"formatSettings": {
+							"type": "DelimitedTextReadSettings"
+						}
+					},
+					"sink": {
+						"type": "DelimitedTextSink",
+						"storeSettings": {
+							"type": "AzureBlobFSWriteSettings"
+						},
+						"formatSettings": {
+							"type": "DelimitedTextWriteSettings",
+							"quoteAllText": true,
+							"fileExtension": ".txt"
+						}
+					},
+					"enableStaging": false,
+					"translator": {
+						"type": "TabularTranslator",
+						"mappings": [
+							{
+								"source": {
+									"name": "pl_trigger_time",
+									"type": "String"
+								},
+								"sink": {
+									"name": "pl_trigger_time",
+									"type": "String",
+									"physicalType": "String"
+								}
+							}
+						],
+						"typeConversion": true,
+						"typeConversionSettings": {
+							"allowDataTruncation": true,
+							"treatBooleanAsNumber": false
+						}
+					}
+				},
+				"inputs": [
+					{
+						"referenceName": "ds_adls_dt_sfdc",
+						"type": "DatasetReference",
+						"parameters": {
+							"p_ds_dircetory": {
+								"value": "@concat(variables('v_object'),'/logic')",
+								"type": "Expression"
+							},
+							"p_ds_file_name": "dummy.txt"
+						}
+					}
+				],
+				"outputs": [
+					{
+						"referenceName": "ds_adls_dt_sfdc",
+						"type": "DatasetReference",
+						"parameters": {
+							"p_ds_dircetory": {
+								"value": "@concat(variables('v_object'),'/logic')",
+								"type": "Expression"
+							},
+							"p_ds_file_name": "param_pl_trigger_time.txt"
+						}
+					}
+				]
+			},
+			{
+				"name": "Set variable v_object",
+				"type": "SetVariable",
+				"dependsOn": [],
+				"policy": {
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"variableName": "v_object",
+					"value": "order"
+				}
+			},
+			{
+				"name": "Copy data main",
+				"type": "Copy",
+				"dependsOn": [
+					{
+						"activity": "Set variable1",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "SalesforceSource",
+						"query": {
+							"value": "@concat(activity('Lookup config').output.value[3].soql, ' AND ', activity('Lookup config').output.value[2].timestamp_filter, ' >= ', activity('Lookup pl_trigger_time').output.firstRow.pl_trigger_time,'z')",
+							"type": "Expression"
+						},
+						"readBehavior": "query"
+					},
+					"sink": {
+						"type": "JsonSink",
+						"storeSettings": {
+							"type": "AzureBlobFSWriteSettings"
+						},
+						"formatSettings": {
+							"type": "JsonWriteSettings"
+						}
+					},
+					"enableStaging": false
+				},
+				"inputs": [
+					{
+						"referenceName": "ds_sfdc",
+						"type": "DatasetReference",
+						"parameters": {
+							"p_ds_base_url": {
+								"value": "@activity('Lookup config').output.value[0].base_url",
+								"type": "Expression"
+							},
+							"p_ds_user_name": {
+								"value": "@activity('Lookup config').output.value[1].user_name",
+								"type": "Expression"
+							}
+						}
+					}
+				],
+				"outputs": [
+					{
+						"referenceName": "ds_adls_json_sfdc",
+						"type": "DatasetReference",
+						"parameters": {
+							"p_ds_directory": {
+								"value": "@concat(variables('v_object'), '/data')",
+								"type": "Expression"
+							},
+							"p_ds_file_name": {
+								"value": "@concat(variables('v_object'),'_',convertFromUtc(pipeline().TriggerTime, 'Eastern Standard Time', 'yyyyMMddHHmmss'),'.json')",
+								"type": "Expression"
+							}
+						}
+					}
+				]
+			},
+			{
+				"name": "If Condition1",
+				"type": "IfCondition",
+				"dependsOn": [
+					{
+						"activity": "Lookup1",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"userProperties": [],
+				"typeProperties": {
+					"expression": {
+						"value": "@activity('Lookup1').output.pipelineReturnValue",
+						"type": "Expression"
+					}
+				}
+			},
+			{
+				"name": "Lookup1",
+				"type": "Lookup",
+				"dependsOn": [
+					{
+						"activity": "Copy data main",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "SalesforceSource",
+						"query": {
+							"value": "@concat(activity('Lookup config').output.value[3].soql, ' AND ', activity('Lookup config').output.value[2].timestamp_filter, ' >= ', activity('Lookup pl_trigger_time').output.firstRow.pl_trigger_time,'z')",
+							"type": "Expression"
+						},
+						"readBehavior": "query"
+					},
+					"dataset": {
+						"referenceName": "ds_sfdc",
+						"type": "DatasetReference",
+						"parameters": {
+							"p_ds_base_url": {
+								"value": "@activity('Lookup config').output.value",
+								"type": "Expression"
+							},
+							"p_ds_user_name": {
+								"value": "@activity('Lookup config').output.value[1].user_name",
+								"type": "Expression"
+							}
+						}
+					}
+				}
+			},
+			{
+				"name": "Set variable1",
+				"type": "SetVariable",
+				"dependsOn": [
+					{
+						"activity": "Lookup config",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					},
+					{
+						"activity": "Lookup pl_trigger_time",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"variableName": "temp",
+					"value": "123"
+				}
+			}
+		],
+		"variables": {
+			"v_object": {
+				"type": "String"
+			},
+			"v_object_array": {
+				"type": "Array",
+				"defaultValue": [
+					{
+						"object_name": "contact"
+					},
+					{
+						"object_name": "contract"
+					},
+					{
+						"object_name": "order"
+					}
+				]
+			},
+			"temp": {
+				"type": "String"
+			}
+		},
+		"folder": {
+			"name": "Test_Pipelines"
+		},
+		"annotations": [],
+		"lastPublishTime": "2023-10-04T09:52:36Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}

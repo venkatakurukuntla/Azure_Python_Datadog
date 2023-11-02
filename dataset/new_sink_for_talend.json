@@ -1,0 +1,24 @@
+{
+	"name": "new_sink_for_talend",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "ls_adls_stgacct03",
+			"type": "LinkedServiceReference"
+		},
+		"folder": {
+			"name": "Test"
+		},
+		"annotations": [],
+		"type": "Json",
+		"typeProperties": {
+			"location": {
+				"type": "AzureBlobFSLocation",
+				"fileName": "new_target.json",
+				"folderPath": "data",
+				"fileSystem": "talend"
+			}
+		},
+		"schema": {}
+	},
+	"type": "Microsoft.DataFactory/factories/datasets"
+}

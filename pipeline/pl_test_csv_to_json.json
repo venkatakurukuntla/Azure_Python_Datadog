@@ -1,0 +1,69 @@
+{
+	"name": "pl_test_csv_to_json",
+	"properties": {
+		"activities": [
+			{
+				"name": "Copy data1",
+				"type": "Copy",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "DelimitedTextSource",
+						"storeSettings": {
+							"type": "AzureBlobFSReadSettings",
+							"recursive": true,
+							"enablePartitionDiscovery": false
+						},
+						"formatSettings": {
+							"type": "DelimitedTextReadSettings"
+						}
+					},
+					"sink": {
+						"type": "JsonSink",
+						"storeSettings": {
+							"type": "AzureBlobFSWriteSettings"
+						},
+						"formatSettings": {
+							"type": "JsonWriteSettings"
+						}
+					},
+					"enableStaging": false
+				},
+				"inputs": [
+					{
+						"referenceName": "ds_adls_dt_sfdc",
+						"type": "DatasetReference",
+						"parameters": {
+							"p_ds_dircetory": "order/data",
+							"p_ds_file_name": "order_in_csv.csv"
+						}
+					}
+				],
+				"outputs": [
+					{
+						"referenceName": "ds_adls_json_sfdc",
+						"type": "DatasetReference",
+						"parameters": {
+							"p_ds_directory": "order/data",
+							"p_ds_file_name": "order_in_json.json"
+						}
+					}
+				]
+			}
+		],
+		"folder": {
+			"name": "Test_Pipelines"
+		},
+		"annotations": [],
+		"lastPublishTime": "2023-10-04T09:52:36Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}

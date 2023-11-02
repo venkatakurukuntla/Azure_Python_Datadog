@@ -1,0 +1,361 @@
+{
+	"name": "pl_extract_talend_data_copy_clone",
+	"properties": {
+		"activities": [
+			{
+				"name": "Lookup config",
+				"type": "Lookup",
+				"dependsOn": [
+					{
+						"activity": "Set variable v_object",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "JsonSource",
+						"storeSettings": {
+							"type": "AzureBlobFSReadSettings",
+							"recursive": true,
+							"enablePartitionDiscovery": false
+						},
+						"formatSettings": {
+							"type": "JsonReadSettings"
+						}
+					},
+					"dataset": {
+						"referenceName": "ds_adls_json_talend",
+						"type": "DatasetReference",
+						"parameters": {
+							"p_ds_direcotry": {
+								"value": "@concat(variables('v_object'), '/logic')",
+								"type": "Expression"
+							},
+							"p_ds_file_name": "param_config.json"
+						}
+					},
+					"firstRowOnly": false
+				}
+			},
+			{
+				"name": "Lookup last_extract_time",
+				"type": "Lookup",
+				"dependsOn": [
+					{
+						"activity": "Set variable v_object",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "DelimitedTextSource",
+						"storeSettings": {
+							"type": "AzureBlobFSReadSettings",
+							"recursive": true,
+							"enablePartitionDiscovery": false
+						},
+						"formatSettings": {
+							"type": "DelimitedTextReadSettings"
+						}
+					},
+					"dataset": {
+						"referenceName": "ds_adls_dt_talend",
+						"type": "DatasetReference",
+						"parameters": {
+							"p_ds_directory": {
+								"value": "@concat(variables('v_object'), '/logic')",
+								"type": "Expression"
+							},
+							"p_ds_file_name": "param_last_extract_time.txt"
+						}
+					},
+					"firstRowOnly": true
+				}
+			},
+			{
+				"name": "Set variable v_object",
+				"type": "SetVariable",
+				"dependsOn": [],
+				"policy": {
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"variableName": "v_object",
+					"value": "integration_jobs"
+				}
+			},
+			{
+				"name": "Copy data tasks",
+				"type": "Copy",
+				"dependsOn": [
+					{
+						"activity": "Lookup config",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					},
+					{
+						"activity": "Lookup last_extract_time",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "JsonSource",
+						"storeSettings": {
+							"type": "HttpReadSettings",
+							"requestMethod": "GET"
+						},
+						"formatSettings": {
+							"type": "JsonReadSettings"
+						}
+					},
+					"sink": {
+						"type": "JsonSink",
+						"storeSettings": {
+							"type": "AzureBlobFSWriteSettings"
+						},
+						"formatSettings": {
+							"type": "JsonWriteSettings"
+						}
+					},
+					"enableStaging": false
+				},
+				"inputs": [
+					{
+						"referenceName": "ds_http_json_talend",
+						"type": "DatasetReference",
+						"parameters": {
+							"p_ds_base_url": {
+								"value": "@concat(activity('Lookup config').output.value[0].base_url_tasks,'?',activity('Lookup config').output.value[4].environment_filter,'=',activity('Lookup config').output.value[3].environmentId)",
+								"type": "Expression"
+							}
+						}
+					}
+				],
+				"outputs": [
+					{
+						"referenceName": "ds_adls_json_talend",
+						"type": "DatasetReference",
+						"parameters": {
+							"p_ds_direcotry": "tasks/data",
+							"p_ds_file_name": {
+								"value": "@concat('tasks_',formatDateTime(pipeline().TriggerTime,'yyyyMMddHHmmss'),'.json')",
+								"type": "Expression"
+							}
+						}
+					}
+				]
+			},
+			{
+				"name": "Copy data executions",
+				"type": "Copy",
+				"dependsOn": [
+					{
+						"activity": "Copy data tasks",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "JsonSource",
+						"storeSettings": {
+							"type": "HttpReadSettings",
+							"requestMethod": "GET"
+						},
+						"formatSettings": {
+							"type": "JsonReadSettings"
+						}
+					},
+					"sink": {
+						"type": "JsonSink",
+						"storeSettings": {
+							"type": "AzureBlobFSWriteSettings"
+						},
+						"formatSettings": {
+							"type": "JsonWriteSettings"
+						}
+					},
+					"enableStaging": false
+				},
+				"inputs": [
+					{
+						"referenceName": "ds_http_json_talend",
+						"type": "DatasetReference",
+						"parameters": {
+							"p_ds_base_url": {
+								"value": "@concat(activity('Lookup config').output.value[1].base_url_exeutions,'?',activity('Lookup config').output.value[4].environment_filter,'=',activity('Lookup config').output.value[3].environmentId,'&',activity('Lookup config').output.value[5].timestamp_filter,'=',string(add(div(sub(ticks(activity('Lookup last_extract_time').output.firstRow.last_extract_time),ticks('1990-01-01 00:00:00.000')),10000),631152000000)))",
+								"type": "Expression"
+							}
+						}
+					}
+				],
+				"outputs": [
+					{
+						"referenceName": "ds_adls_json_talend",
+						"type": "DatasetReference",
+						"parameters": {
+							"p_ds_direcotry": "executions/data",
+							"p_ds_file_name": {
+								"value": "@concat('executions_',formatDateTime(pipeline().TriggerTime,'yyyyMMddHHmmss'),'.json')",
+								"type": "Expression"
+							}
+						}
+					}
+				]
+			},
+			{
+				"name": "Copy data last_extract_time",
+				"type": "Copy",
+				"dependsOn": [
+					{
+						"activity": "Copy data executions",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "DelimitedTextSource",
+						"additionalColumns": [
+							{
+								"name": "last_extract_time",
+								"value": {
+									"value": "@pipeline().TriggerTime",
+									"type": "Expression"
+								}
+							}
+						],
+						"storeSettings": {
+							"type": "AzureBlobFSReadSettings",
+							"recursive": true,
+							"enablePartitionDiscovery": false
+						},
+						"formatSettings": {
+							"type": "DelimitedTextReadSettings"
+						}
+					},
+					"sink": {
+						"type": "DelimitedTextSink",
+						"storeSettings": {
+							"type": "AzureBlobFSWriteSettings"
+						},
+						"formatSettings": {
+							"type": "DelimitedTextWriteSettings",
+							"quoteAllText": true,
+							"fileExtension": ".txt"
+						}
+					},
+					"enableStaging": false,
+					"translator": {
+						"type": "TabularTranslator",
+						"mappings": [
+							{
+								"source": {
+									"name": "last_extract_time"
+								},
+								"sink": {
+									"name": "last_extract_time",
+									"physicalType": "String"
+								}
+							}
+						],
+						"typeConversion": true,
+						"typeConversionSettings": {
+							"allowDataTruncation": true,
+							"treatBooleanAsNumber": false
+						}
+					}
+				},
+				"inputs": [
+					{
+						"referenceName": "ds_adls_dt_talend",
+						"type": "DatasetReference",
+						"parameters": {
+							"p_ds_directory": {
+								"value": "@concat(variables('v_object'),'/logic')",
+								"type": "Expression"
+							},
+							"p_ds_file_name": "dummy.txt"
+						}
+					}
+				],
+				"outputs": [
+					{
+						"referenceName": "ds_adls_dt_talend",
+						"type": "DatasetReference",
+						"parameters": {
+							"p_ds_directory": {
+								"value": "@concat(variables('v_object'),'/logic')",
+								"type": "Expression"
+							},
+							"p_ds_file_name": "param_last_extract_time.txt"
+						}
+					}
+				]
+			}
+		],
+		"variables": {
+			"v_object": {
+				"type": "String"
+			}
+		},
+		"folder": {
+			"name": "BKP Pipelines"
+		},
+		"annotations": [],
+		"lastPublishTime": "2023-10-04T09:52:36Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}

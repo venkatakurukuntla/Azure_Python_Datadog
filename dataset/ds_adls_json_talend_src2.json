@@ -1,0 +1,75 @@
+{
+	"name": "ds_adls_json_talend_src2",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "ls_adls_stgacct03",
+			"type": "LinkedServiceReference"
+		},
+		"folder": {
+			"name": "Test"
+		},
+		"annotations": [],
+		"type": "Json",
+		"typeProperties": {
+			"location": {
+				"type": "AzureBlobFSLocation",
+				"fileName": "executions.json",
+				"folderPath": "data",
+				"fileSystem": "talend"
+			}
+		},
+		"schema": {
+			"type": "object",
+			"properties": {
+				"executionId": {
+					"type": "string"
+				},
+				"startTimestamp": {
+					"type": "string"
+				},
+				"triggerTimestamp": {
+					"type": "string"
+				},
+				"finishTimestamp": {
+					"type": "string"
+				},
+				"userId": {
+					"type": "string"
+				},
+				"taskId": {
+					"type": "string"
+				},
+				"taskVersion": {
+					"type": "string"
+				},
+				"executionType": {
+					"type": "string"
+				},
+				"status": {
+					"type": "string"
+				},
+				"runtime": {
+					"type": "object",
+					"properties": {
+						"type": {
+							"type": "string"
+						},
+						"engineId": {
+							"type": "string"
+						}
+					}
+				},
+				"errorMessage": {
+					"type": "string"
+				},
+				"executionStatus": {
+					"type": "string"
+				},
+				"parallelExecutionAllowed": {
+					"type": "boolean"
+				}
+			}
+		}
+	},
+	"type": "Microsoft.DataFactory/factories/datasets"
+}

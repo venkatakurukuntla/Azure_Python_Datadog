@@ -1,0 +1,41 @@
+{
+	"name": "ds_http_json_wd",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "ls_http_wd",
+			"type": "LinkedServiceReference",
+			"parameters": {
+				"p_ls_base_url": {
+					"value": "@dataset().p_ds_base_url",
+					"type": "Expression"
+				},
+				"p_ls_user_name": {
+					"value": "@dataset().p_ds_user_name",
+					"type": "Expression"
+				}
+			}
+		},
+		"parameters": {
+			"p_ds_base_url": {
+				"type": "string",
+				"defaultValue": "https://wd2-impl-services1.workday.com/ccx/service/customreport2/vertexinc4/ISU_Vertex_Integration_Events/CR_-_Integration_Events_-_Vertex"
+			},
+			"p_ds_user_name": {
+				"type": "string",
+				"defaultValue": "ISU_Vertex_Integration_Events"
+			}
+		},
+		"folder": {
+			"name": "App_Workday"
+		},
+		"annotations": [],
+		"type": "Json",
+		"typeProperties": {
+			"location": {
+				"type": "HttpServerLocation"
+			}
+		},
+		"schema": {}
+	},
+	"type": "Microsoft.DataFactory/factories/datasets"
+}

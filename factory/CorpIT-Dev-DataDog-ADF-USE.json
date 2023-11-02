@@ -1,0 +1,9 @@
+{
+	"name": "CorpIT-Dev-DataDog-ADF-USE",
+	"location": "eastus",
+	"identity": {
+		"type": "SystemAssigned",
+		"principalId": "32aaf9f0-3c52-484d-866e-c15db817b68d",
+		"tenantId": "dd64b6ec-0a2a-4f60-8ca1-eeaab33884d7"
+	}
+}

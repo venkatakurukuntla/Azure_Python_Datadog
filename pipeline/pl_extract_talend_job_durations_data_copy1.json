@@ -1,0 +1,304 @@
+{
+	"name": "pl_extract_talend_job_durations_data_copy1",
+	"properties": {
+		"activities": [
+			{
+				"name": "Lookup config",
+				"type": "Lookup",
+				"dependsOn": [
+					{
+						"activity": "Set variable v_object",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "JsonSource",
+						"storeSettings": {
+							"type": "AzureBlobFSReadSettings",
+							"recursive": true,
+							"enablePartitionDiscovery": false
+						},
+						"formatSettings": {
+							"type": "JsonReadSettings"
+						}
+					},
+					"dataset": {
+						"referenceName": "ds_adls_json_talend",
+						"type": "DatasetReference",
+						"parameters": {
+							"p_ds_direcotry": {
+								"value": "@concat(variables('v_object'), '/logic')",
+								"type": "Expression"
+							},
+							"p_ds_file_name": "param_config.json"
+						}
+					},
+					"firstRowOnly": false
+				}
+			},
+			{
+				"name": "Set variable v_object",
+				"type": "SetVariable",
+				"dependsOn": [],
+				"policy": {
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"variableName": "v_object",
+					"value": "job_durations"
+				}
+			},
+			{
+				"name": "Lookup tasks",
+				"type": "Lookup",
+				"dependsOn": [
+					{
+						"activity": "Copy data tasks",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "JsonSource",
+						"storeSettings": {
+							"type": "AzureBlobFSReadSettings",
+							"recursive": true,
+							"enablePartitionDiscovery": false
+						},
+						"formatSettings": {
+							"type": "JsonReadSettings"
+						}
+					},
+					"dataset": {
+						"referenceName": "ds_adls_json_talend",
+						"type": "DatasetReference",
+						"parameters": {
+							"p_ds_direcotry": "tasks/data",
+							"p_ds_file_name": "tasks.json"
+						}
+					},
+					"firstRowOnly": true
+				}
+			},
+			{
+				"name": "ForEach taskId",
+				"type": "ForEach",
+				"dependsOn": [
+					{
+						"activity": "Lookup tasks",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"userProperties": [],
+				"typeProperties": {
+					"items": {
+						"value": "@range(0,activity('Lookup tasks').output.firstRow.total)",
+						"type": "Expression"
+					},
+					"isSequential": true,
+					"activities": [
+						{
+							"name": "Copy data job_durations",
+							"type": "Copy",
+							"dependsOn": [],
+							"policy": {
+								"timeout": "0.12:00:00",
+								"retry": 0,
+								"retryIntervalInSeconds": 30,
+								"secureOutput": false,
+								"secureInput": false
+							},
+							"userProperties": [],
+							"typeProperties": {
+								"source": {
+									"type": "JsonSource",
+									"additionalColumns": [
+										{
+											"name": "job_name",
+											"value": {
+												"value": "@activity('Lookup tasks').output.firstRow.items[item()].name",
+												"type": "Expression"
+											}
+										},
+										{
+											"name": "project_name",
+											"value": {
+												"value": "@activity('Lookup tasks').output.firstRow.items[item()].workspace.name",
+												"type": "Expression"
+											}
+										},
+										{
+											"name": "environment",
+											"value": {
+												"value": "@activity('Lookup tasks').output.firstRow.items[item()].workspace.environment.name",
+												"type": "Expression"
+											}
+										}
+									],
+									"storeSettings": {
+										"type": "HttpReadSettings",
+										"requestMethod": "GET"
+									},
+									"formatSettings": {
+										"type": "JsonReadSettings"
+									}
+								},
+								"sink": {
+									"type": "JsonSink",
+									"storeSettings": {
+										"type": "AzureBlobFSWriteSettings",
+										"copyBehavior": "MergeFiles"
+									},
+									"formatSettings": {
+										"type": "JsonWriteSettings"
+									}
+								},
+								"enableStaging": false
+							},
+							"inputs": [
+								{
+									"referenceName": "ds_http_json_talend",
+									"type": "DatasetReference",
+									"parameters": {
+										"p_ds_base_url": {
+											"value": "@concat(activity('Lookup config').output.value[0].base_url_tasks,'/',activity('Lookup tasks').output.firstRow.items[item()].executable,'/executions')",
+											"type": "Expression"
+										}
+									}
+								}
+							],
+							"outputs": [
+								{
+									"referenceName": "ds_adls_json_talend",
+									"type": "DatasetReference",
+									"parameters": {
+										"p_ds_direcotry": {
+											"value": "@concat(variables('v_object'),'/data')",
+											"type": "Expression"
+										},
+										"p_ds_file_name": {
+											"value": "@concat(variables('v_object'),'_inputs_',activity('Lookup tasks').output.firstRow.items[item()].executable,'.json')",
+											"type": "Expression"
+										}
+									}
+								}
+							]
+						}
+					]
+				}
+			},
+			{
+				"name": "Copy data tasks",
+				"type": "Copy",
+				"dependsOn": [
+					{
+						"activity": "Lookup config",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "JsonSource",
+						"storeSettings": {
+							"type": "HttpReadSettings",
+							"requestMethod": "GET"
+						},
+						"formatSettings": {
+							"type": "JsonReadSettings"
+						}
+					},
+					"sink": {
+						"type": "JsonSink",
+						"storeSettings": {
+							"type": "AzureBlobFSWriteSettings"
+						},
+						"formatSettings": {
+							"type": "JsonWriteSettings"
+						}
+					},
+					"enableStaging": false
+				},
+				"inputs": [
+					{
+						"referenceName": "ds_http_json_talend",
+						"type": "DatasetReference",
+						"parameters": {
+							"p_ds_base_url": {
+								"value": "@concat(activity('Lookup config').output.value[0].base_url_tasks,'?',activity('Lookup config').output.value[4].environment_filter,'=',activity('Lookup config').output.value[3].environmentId)",
+								"type": "Expression"
+							}
+						}
+					}
+				],
+				"outputs": [
+					{
+						"referenceName": "ds_adls_json_talend",
+						"type": "DatasetReference",
+						"parameters": {
+							"p_ds_direcotry": "tasks/data",
+							"p_ds_file_name": "tasks.json"
+						}
+					}
+				]
+			}
+		],
+		"variables": {
+			"v_object": {
+				"type": "String"
+			},
+			"v_base_url_tasks": {
+				"type": "String"
+			},
+			"v_tasks_list_file": {
+				"type": "String"
+			},
+			"v_executions_list_file": {
+				"type": "String"
+			},
+			"v_month_ago": {
+				"type": "String"
+			}
+		},
+		"folder": {
+			"name": "BKP Pipelines"
+		},
+		"annotations": [],
+		"lastPublishTime": "2023-10-04T09:52:36Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}

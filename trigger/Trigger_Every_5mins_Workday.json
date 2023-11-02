@@ -1,0 +1,31 @@
+{
+	"name": "Trigger_Every_5mins_Workday",
+	"properties": {
+		"description": "This trigger is to run a pipeline at every 15 mins",
+		"annotations": [],
+		"runtimeState": "Started",
+		"pipelines": [
+			{
+				"pipelineReference": {
+					"referenceName": "pl_process_wd_user_sign_on_data",
+					"type": "PipelineReference"
+				}
+			},
+			{
+				"pipelineReference": {
+					"referenceName": "pl_process_wd_integration_events_data",
+					"type": "PipelineReference"
+				}
+			}
+		],
+		"type": "ScheduleTrigger",
+		"typeProperties": {
+			"recurrence": {
+				"frequency": "Minute",
+				"interval": 5,
+				"startTime": "2023-10-06T14:30:00",
+				"timeZone": "Eastern Standard Time"
+			}
+		}
+	}
+}
