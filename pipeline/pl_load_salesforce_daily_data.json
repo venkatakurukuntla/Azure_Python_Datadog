@@ -1,5 +1,5 @@
 {
-	"name": "pl_load_salesforce_dummy_data",
+	"name": "pl_load_salesforce_daily_data",
 	"properties": {
 		"activities": [
 			{
